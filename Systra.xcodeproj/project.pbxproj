@@ -5,185 +5,185 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
-		"0AE80C795CA041C2F55C7A4D" = {
+		"57B805E383B69D79DD28A114" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "AppProcessList.swift";
 			"sourceTree" = "<group>";
 		};
-		"9293ABD64595A89139F0F0DC" = {
+		"6AC83A32D9DF93D6F4976ED8" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "0AE80C795CA041C2F55C7A4D";
+			"fileRef" = "57B805E383B69D79DD28A114";
 		};
-		"D8C1FD4080603DFC0FEB414F" = {
+		"7CFDC79C8B15423D6718ACA0" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "AppSummaryModels.swift";
 			"sourceTree" = "<group>";
 		};
-		"EC33220723EEF5EB10C2CD68" = {
+		"0B88401AE5B839969EA1F63D" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "D8C1FD4080603DFC0FEB414F";
+			"fileRef" = "7CFDC79C8B15423D6718ACA0";
 		};
-		"EBBCD9B1CF7A6FA9B1634E74" = {
+		"357929B2B8C9D8046E173B8C" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "AppSummarySidebar.swift";
 			"sourceTree" = "<group>";
 		};
-		"219D4068E21982C900E95DCC" = {
+		"988DF64342315CF05CA18797" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "EBBCD9B1CF7A6FA9B1634E74";
+			"fileRef" = "357929B2B8C9D8046E173B8C";
 		};
-		"BD86A610664DE0B454F78A26" = {
+		"6DDF2A9146CB1676A23D606F" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "ApplicationContextMenu.swift";
 			"sourceTree" = "<group>";
 		};
-		"838DA1CC140AA9503718A7C4" = {
+		"0F4A07378AD250C03F1CB266" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "BD86A610664DE0B454F78A26";
+			"fileRef" = "6DDF2A9146CB1676A23D606F";
 		};
-		"DE66223059FCF25010844EDA" = {
+		"99BB43083BC5D7D1320EC73A" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "MainWindow.swift";
 			"sourceTree" = "<group>";
 		};
-		"F0D76EE7AF4ACF4692672D0B" = {
+		"24D1B5BB0AB694CA078042AD" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "DE66223059FCF25010844EDA";
+			"fileRef" = "99BB43083BC5D7D1320EC73A";
 		};
-		"76BB72D3C19A63CF3EF4A493" = {
+		"2C80B1F5BC2B9CFCE5ADC167" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "MenuBarIcon.swift";
 			"sourceTree" = "<group>";
 		};
-		"A6596D86E352341B71B7AAC4" = {
+		"8B87ADDCAC0FEC9EAB7C9084" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "76BB72D3C19A63CF3EF4A493";
+			"fileRef" = "2C80B1F5BC2B9CFCE5ADC167";
 		};
-		"3F35A817EFC7D7B74B796183" = {
+		"1F6D0FCA4946E681DC3B242D" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "ProcessInspector.swift";
 			"sourceTree" = "<group>";
 		};
-		"6E778BB5444D25607644C21F" = {
+		"50492DDE7D62DFAC1A137A03" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "3F35A817EFC7D7B74B796183";
+			"fileRef" = "1F6D0FCA4946E681DC3B242D";
 		};
-		"1E144CAB78BCB91F87C0B1D4" = {
+		"2E5AE113B9B4AA194E63641D" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "Processes.swift";
 			"sourceTree" = "<group>";
 		};
-		"C894BE5FD8D2045E6172784A" = {
+		"B72BAF0F4024B4C0F0C80857" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "1E144CAB78BCB91F87C0B1D4";
+			"fileRef" = "2E5AE113B9B4AA194E63641D";
 		};
-		"93AC133C4B730A1CD817F029" = {
-			"isa" = "PBXFileReference";
-			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "SystraMac.swift";
-			"sourceTree" = "<group>";
-		};
-		"3E47F2D966B8916B4F4B7AB2" = {
-			"isa" = "PBXBuildFile";
-			"fileRef" = "93AC133C4B730A1CD817F029";
-		};
-		"2783E4FC7C3F34BAA1FC4F29" = {
+		"600852C67A2D57FCBEF231EA" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "RowSelection.swift";
 			"sourceTree" = "<group>";
 		};
-		"6C4C57A0A8EB71AC5CA6CA81" = {
+		"31E6EE310FC4154A5F9DE5CC" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "2783E4FC7C3F34BAA1FC4F29";
+			"fileRef" = "600852C67A2D57FCBEF231EA";
 		};
-		"20EE7058109D0E3C951B7CE1" = {
+		"B3C92CBB8E0D72534A26020E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "SystemUptime.swift";
 			"sourceTree" = "<group>";
 		};
-		"0AE9C2A41215D03DCC226A4E" = {
+		"3BA592CDF626C048BD0DAC93" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "20EE7058109D0E3C951B7CE1";
+			"fileRef" = "B3C92CBB8E0D72534A26020E";
 		};
-		"6E738CA3ED56DF55A6F74245" = {
+		"D303DF5A6D5DB991881A2DDA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "SystraMain.swift";
+			"sourceTree" = "<group>";
+		};
+		"BD548B3427DF4EA3F878ADC8" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D303DF5A6D5DB991881A2DDA";
+		};
+		"17F963665D74112A2F4859E3" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "TableModels.swift";
 			"sourceTree" = "<group>";
 		};
-		"1C79CDDC3448398E81734F2D" = {
+		"791EDB7187133364A329F4BB" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "6E738CA3ED56DF55A6F74245";
+			"fileRef" = "17F963665D74112A2F4859E3";
 		};
-		"1B1C106003B166DA6B2580BD" = {
+		"EB269D3C3979DCFA788797C9" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "Telemetry.swift";
 			"sourceTree" = "<group>";
 		};
-		"0B2133BA76980DB39E6CA841" = {
+		"77B3B601308F92C5C6449F7E" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "1B1C106003B166DA6B2580BD";
+			"fileRef" = "EB269D3C3979DCFA788797C9";
 		};
-		"C4066850E9E32F7340F3F524" = {
+		"68D1E7F7E4A9B8A57FF25DE6" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "TelemetryViews.swift";
 			"sourceTree" = "<group>";
 		};
-		"553BA9240583F959C6B47693" = {
+		"98925F157A5EB8783811C2C9" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "C4066850E9E32F7340F3F524";
+			"fileRef" = "68D1E7F7E4A9B8A57FF25DE6";
 		};
-		"A4CA9BABAC0B8774D58C930A" = {
+		"CE9FA1F27006B3E8A712BB8E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "TemperatureGroupsView.swift";
 			"sourceTree" = "<group>";
 		};
-		"84FE9FB272FADDCA883933FF" = {
+		"7139781DE135847B8567115F" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "A4CA9BABAC0B8774D58C930A";
+			"fileRef" = "CE9FA1F27006B3E8A712BB8E";
 		};
-		"2B12EB397BA0A1DAEB193E75" = {
+		"4DC457BC3CEFEF1E10029AE7" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "TemperatureModels.swift";
 			"sourceTree" = "<group>";
 		};
-		"97E8952379A30CF8D9127EC3" = {
+		"D0DE373145F07A20E3B50E5B" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "2B12EB397BA0A1DAEB193E75";
+			"fileRef" = "4DC457BC3CEFEF1E10029AE7";
 		};
-		"503B75A3F971021915227520" = {
+		"DBD79ED5A2B21BA82CFCF939" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "UptimeDetailsView.swift";
 			"sourceTree" = "<group>";
 		};
-		"E5D8D22E2DC5D9FF8CFE7038" = {
+		"A44BFEC552C1153F38A92372" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "503B75A3F971021915227520";
+			"fileRef" = "DBD79ED5A2B21BA82CFCF939";
 		};
-		"D441422367DB8A4949F34C45" = {
+		"A097D771A8A6DBAB10F6857E" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "WindowToolbar.swift";
 			"sourceTree" = "<group>";
 		};
-		"241CB859FDA415B2FFFE9EE3" = {
+		"07DE3429968DE4A8762E0233" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "D441422367DB8A4949F34C45";
+			"fileRef" = "A097D771A8A6DBAB10F6857E";
 		};
 		"552C8836A6BFE8D05AE730E9" = {
 			"isa" = "PBXFileReference";
@@ -207,55 +207,75 @@
 			"path" = "Info.plist";
 			"sourceTree" = "<group>";
 		};
-		"D787A2C934C72A7A668594FB" = {
+		"9FADE729FD9B86E0AE07B107" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "image.icns";
 			"path" = "Systra.icns";
 			"sourceTree" = "<group>";
 		};
-		"8534B2B15FA39B4270A9CDF5" = {
+		"22D480C04AC873053E1687BF" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "D787A2C934C72A7A668594FB";
+			"fileRef" = "9FADE729FD9B86E0AE07B107";
 		};
-		"5CB31A0C5D119E5CBCD3EFE2" = {
+		"1D403F305676A7C0883BC13C" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "image.png";
 			"path" = "Systra.png";
 			"sourceTree" = "<group>";
 		};
-		"97569724FB6C83451BE53B93" = {
+		"4D4737E3E5F3DDD2535CE554" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "image.png";
 			"path" = "SystraSmall.png";
 			"sourceTree" = "<group>";
 		};
-		"C7345A692E4F8D99F6DA9597" = {
+		"4F4AE647BE6003479C15C80A" = {
 			"isa" = "PBXBuildFile";
-			"fileRef" = "97569724FB6C83451BE53B93";
+			"fileRef" = "4D4737E3E5F3DDD2535CE554";
+		};
+		"57795E86460CC7787357BD35" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "image.png";
+			"path" = "SystraMenu.png";
+			"sourceTree" = "<group>";
+		};
+		"A4940797DAAEC2C44D0C8EAA" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "57795E86460CC7787357BD35";
+		};
+		"0FD7832D4840BF14E5573022" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "image.png";
+			"path" = "SystraMenu@2x.png";
+			"sourceTree" = "<group>";
+		};
+		"31F2CEF8FF39DA3340184253" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "0FD7832D4840BF14E5573022";
 		};
 		"3C3B0F03DC089F93B8457928" = {
 			"isa" = "PBXGroup";
 			"path" = "SystraApp";
 			"sourceTree" = "<group>";
 			"children" = (
-				"0AE80C795CA041C2F55C7A4D",
-				"D8C1FD4080603DFC0FEB414F",
-				"EBBCD9B1CF7A6FA9B1634E74",
-				"BD86A610664DE0B454F78A26",
-				"DE66223059FCF25010844EDA",
-				"76BB72D3C19A63CF3EF4A493",
-				"3F35A817EFC7D7B74B796183",
-				"1E144CAB78BCB91F87C0B1D4",
-				"93AC133C4B730A1CD817F029",
-				"2783E4FC7C3F34BAA1FC4F29",
-				"20EE7058109D0E3C951B7CE1",
-				"6E738CA3ED56DF55A6F74245",
-				"1B1C106003B166DA6B2580BD",
-				"C4066850E9E32F7340F3F524",
-				"A4CA9BABAC0B8774D58C930A",
-				"2B12EB397BA0A1DAEB193E75",
-				"503B75A3F971021915227520",
-				"D441422367DB8A4949F34C45",
+				"57B805E383B69D79DD28A114",
+				"7CFDC79C8B15423D6718ACA0",
+				"357929B2B8C9D8046E173B8C",
+				"6DDF2A9146CB1676A23D606F",
+				"99BB43083BC5D7D1320EC73A",
+				"2C80B1F5BC2B9CFCE5ADC167",
+				"1F6D0FCA4946E681DC3B242D",
+				"2E5AE113B9B4AA194E63641D",
+				"600852C67A2D57FCBEF231EA",
+				"B3C92CBB8E0D72534A26020E",
+				"D303DF5A6D5DB991881A2DDA",
+				"17F963665D74112A2F4859E3",
+				"EB269D3C3979DCFA788797C9",
+				"68D1E7F7E4A9B8A57FF25DE6",
+				"CE9FA1F27006B3E8A712BB8E",
+				"4DC457BC3CEFEF1E10029AE7",
+				"DBD79ED5A2B21BA82CFCF939",
+				"A097D771A8A6DBAB10F6857E",
 			);
 		};
 		"146ACD42CBCEA73BDF366C33" = {
@@ -282,16 +302,18 @@
 			"sourceTree" = "<group>";
 			"children" = (
 				"429D0230C59596BAEA6CC819",
-				"D787A2C934C72A7A668594FB",
-				"5CB31A0C5D119E5CBCD3EFE2",
-				"97569724FB6C83451BE53B93",
+				"9FADE729FD9B86E0AE07B107",
+				"1D403F305676A7C0883BC13C",
+				"4D4737E3E5F3DDD2535CE554",
+				"57795E86460CC7787357BD35",
+				"0FD7832D4840BF14E5573022",
 			);
 		};
 		"38A007151ABE87CC01A5B6E9" = {
 			"isa" = "PBXFileReference";
 			"explicitFileType" = "wrapper.application";
 			"includeInIndex" = "0";
-			"path" = "SystraMac.app";
+			"path" = "Systra.app";
 			"sourceTree" = "BUILT_PRODUCTS_DIR";
 		};
 		"FBDC4F23F93125BBEEAE800C" = {
@@ -368,10 +390,16 @@
 				"708BBACAB41A5F6B013ACB9C",
 			);
 		};
-		"126CED3F39B3E6C2080DD238" = {
+		"59B2C4E77882119BA0B073E3" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
-			"path" = "MakeIcon.swift";
+			"path" = "BuildAppIcon.swift";
+			"sourceTree" = "<group>";
+		};
+		"96C4E04F650BE35DE2665363" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.python";
+			"path" = "ImportIcons.py";
 			"sourceTree" = "<group>";
 		};
 		"E84A7E6C3491DAFA9ACEE9C4" = {
@@ -397,7 +425,8 @@
 			"path" = "Tools";
 			"sourceTree" = "<group>";
 			"children" = (
-				"126CED3F39B3E6C2080DD238",
+				"59B2C4E77882119BA0B073E3",
+				"96C4E04F650BE35DE2665363",
 				"E84A7E6C3491DAFA9ACEE9C4",
 				"8383377CA8C248BB56BEC4A8",
 				"CF40FDFE492B96E8147D2637",
@@ -422,24 +451,24 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
-				"9293ABD64595A89139F0F0DC",
-				"EC33220723EEF5EB10C2CD68",
-				"219D4068E21982C900E95DCC",
-				"838DA1CC140AA9503718A7C4",
-				"F0D76EE7AF4ACF4692672D0B",
-				"A6596D86E352341B71B7AAC4",
-				"6E778BB5444D25607644C21F",
-				"C894BE5FD8D2045E6172784A",
-				"3E47F2D966B8916B4F4B7AB2",
-				"6C4C57A0A8EB71AC5CA6CA81",
-				"0AE9C2A41215D03DCC226A4E",
-				"1C79CDDC3448398E81734F2D",
-				"0B2133BA76980DB39E6CA841",
-				"553BA9240583F959C6B47693",
-				"84FE9FB272FADDCA883933FF",
-				"97E8952379A30CF8D9127EC3",
-				"E5D8D22E2DC5D9FF8CFE7038",
-				"241CB859FDA415B2FFFE9EE3",
+				"6AC83A32D9DF93D6F4976ED8",
+				"0B88401AE5B839969EA1F63D",
+				"988DF64342315CF05CA18797",
+				"0F4A07378AD250C03F1CB266",
+				"24D1B5BB0AB694CA078042AD",
+				"8B87ADDCAC0FEC9EAB7C9084",
+				"50492DDE7D62DFAC1A137A03",
+				"B72BAF0F4024B4C0F0C80857",
+				"31E6EE310FC4154A5F9DE5CC",
+				"3BA592CDF626C048BD0DAC93",
+				"BD548B3427DF4EA3F878ADC8",
+				"791EDB7187133364A329F4BB",
+				"77B3B601308F92C5C6449F7E",
+				"98925F157A5EB8783811C2C9",
+				"7139781DE135847B8567115F",
+				"D0DE373145F07A20E3B50E5B",
+				"A44BFEC552C1153F38A92372",
+				"07DE3429968DE4A8762E0233",
 				"F5733818F487C46F3E66A33E",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
@@ -448,8 +477,10 @@
 			"isa" = "PBXResourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
-				"8534B2B15FA39B4270A9CDF5",
-				"C7345A692E4F8D99F6DA9597",
+				"22D480C04AC873053E1687BF",
+				"4F4AE647BE6003479C15C80A",
+				"A4940797DAAEC2C44D0C8EAA",
+				"31F2CEF8FF39DA3340184253",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
@@ -474,7 +505,7 @@
 			"isa" = "XCBuildConfiguration";
 			"name" = "Debug";
 			"buildSettings" = {
-				"PRODUCT_NAME" = "SystraMac";
+				"PRODUCT_NAME" = "Systra";
 				"PRODUCT_BUNDLE_IDENTIFIER" = "com.arsenkocharyan.systra";
 				"INFOPLIST_FILE" = "Resources/Info.plist";
 				"GENERATE_INFOPLIST_FILE" = "NO";
@@ -487,8 +518,8 @@
 				"CODE_SIGN_IDENTITY" = "-";
 				"ENABLE_HARDENED_RUNTIME" = "NO";
 				"ENABLE_APP_SANDBOX" = "NO";
-				"CURRENT_PROJECT_VERSION" = "11";
-				"MARKETING_VERSION" = "0.6.0";
+				"CURRENT_PROJECT_VERSION" = "15";
+				"MARKETING_VERSION" = "0.7.3";
 				"ARCHS" = "arm64";
 				"SUPPORTED_PLATFORMS" = "macosx";
 				"LD_RUNPATH_SEARCH_PATHS" = (
@@ -522,7 +553,7 @@
 			"isa" = "XCBuildConfiguration";
 			"name" = "Release";
 			"buildSettings" = {
-				"PRODUCT_NAME" = "SystraMac";
+				"PRODUCT_NAME" = "Systra";
 				"PRODUCT_BUNDLE_IDENTIFIER" = "com.arsenkocharyan.systra";
 				"INFOPLIST_FILE" = "Resources/Info.plist";
 				"GENERATE_INFOPLIST_FILE" = "NO";
@@ -535,8 +566,8 @@
 				"CODE_SIGN_IDENTITY" = "-";
 				"ENABLE_HARDENED_RUNTIME" = "NO";
 				"ENABLE_APP_SANDBOX" = "NO";
-				"CURRENT_PROJECT_VERSION" = "11";
-				"MARKETING_VERSION" = "0.6.0";
+				"CURRENT_PROJECT_VERSION" = "15";
+				"MARKETING_VERSION" = "0.7.3";
 				"ARCHS" = "arm64";
 				"SUPPORTED_PLATFORMS" = "macosx";
 				"LD_RUNPATH_SEARCH_PATHS" = (
@@ -576,7 +607,7 @@
 		"0E8A3AD980EC179856012B7E" = {
 			"isa" = "PBXNativeTarget";
 			"name" = "Systra";
-			"productName" = "SystraMac";
+			"productName" = "Systra";
 			"productType" = "com.apple.product-type.application";
 			"productReference" = "38A007151ABE87CC01A5B6E9";
 			"buildConfigurationList" = "976B52545947CA66FD9EF2A4";

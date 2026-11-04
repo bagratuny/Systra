@@ -248,6 +248,8 @@ struct MetricCard: View {
         let mainMenu = NSMenu()
         let applicationItem = NSMenuItem()
         let applicationMenu = NSMenu(title: "Systra")
+        applicationMenu.addItem(withTitle: "О Systra", action: #selector(showAbout), keyEquivalent: "").target = self
+        applicationMenu.addItem(.separator())
         let metricsItem = applicationMenu.addItem(withTitle: "Показатели в строке меню", action: #selector(togglePopover), keyEquivalent: "p")
         metricsItem.keyEquivalentModifierMask = [.command, .shift]
         metricsItem.target = self
@@ -263,7 +265,7 @@ struct MetricCard: View {
         mainMenu.addItem(fileItem)
         NSApp.mainMenu = mainMenu
         status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        status.button?.image = featherMenuBarIcon()
+        status.button?.image = systraMenuBarIcon()
         status.button?.imagePosition = .imageLeading
         status.button?.title = " —"
         status.button?.target = self
@@ -271,7 +273,7 @@ struct MetricCard: View {
         status.button?.toolTip = "Systra — показатели Mac"
         popover.behavior = .transient
         popover.contentSize = NSSize(width: 430, height: 650)
-        popover.contentViewController = NSHostingController(rootView: PopoverDashboard(monitor: monitor, openWindow: { [weak self] in self?.show() }, quit: { [weak self] in self?.quit() }, openApp: { [weak self] pid in self?.monitor.inspectionRequest = pid; self?.show() }, openSummary: { [weak self] pid in self?.monitor.summaryRequest = pid; self?.show() }).preferredColorScheme(.dark).background(Color(red: 0.13, green: 0.135, blue: 0.145)))
+        popover.contentViewController = NSHostingController(rootView: PopoverDashboard(monitor: monitor, openWindow: { [weak self] in self?.show() }, openAbout: { [weak self] in self?.showAbout() }, quit: { [weak self] in self?.quit() }, openApp: { [weak self] pid in self?.monitor.inspectionRequest = pid; self?.show() }, openSummary: { [weak self] pid in self?.monitor.summaryRequest = pid; self?.show() }).preferredColorScheme(.dark).background(Color(red: 0.13, green: 0.135, blue: 0.145)))
         monitor.statusChanged = { [weak self] cpu in self?.status.button?.title = String(format: " %.0f%%", cpu) }
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1080, height: 740),
                           styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
@@ -358,6 +360,14 @@ struct MetricCard: View {
         popover.performClose(nil)
         NSApp.setActivationPolicy(.regular)
         window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+    @objc func showAbout() {
+        popover.performClose(nil)
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let credits = NSAttributedString(string: "Монитор системы для macOS\n\nРазработчик: Arsen Kocharyan", attributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph])
+        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "Systra", .credits: credits])
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc func quit() { NSApp.terminate(nil) }

@@ -88,6 +88,7 @@ struct PopoverDashboard: View {
     @State private var confirmForceQuit = false
     @ObservedObject var monitor: Monitor
     let openWindow: () -> Void
+    let openAbout: () -> Void
     let quit: () -> Void
     let openApp: (Int32) -> Void
     let openSummary: (Int32) -> Void
@@ -142,6 +143,7 @@ struct PopoverDashboard: View {
             HStack(spacing: 8) {
                 Button(action: openWindow) { Label("Открыть Systra", systemImage: "macwindow").frame(maxWidth: .infinity).frame(height: 31) }
                     .buttonStyle(.plain).background(.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                Button(action: openAbout) { Image(systemName: "info.circle").frame(width: 31, height: 31) }.buttonStyle(.plain).help("О Systra").accessibilityLabel("О Systra")
                 Button(action: quit) { Image(systemName: "power").frame(width: 37, height: 31) }.buttonStyle(.plain)
                     .background(.primary.opacity(0.06), in: RoundedRectangle(cornerRadius: 12, style: .continuous)).help("Выйти из Systra")
             }.font(.system(size: 12, weight: .medium))
