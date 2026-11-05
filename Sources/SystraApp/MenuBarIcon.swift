@@ -23,6 +23,11 @@ func systraMenuBarIcon() -> NSImage {
     return image
 }
 @MainActor enum SystraIcons {
+    // Read the current bundle artwork directly, independent of the system's app-icon cache.
+    static let application: NSImage? = {
+        guard let url = Bundle.main.url(forResource: "Systra", withExtension: "icns") else { return nil }
+        return NSImage(contentsOf: url)
+    }()
     static let small: NSImage? = {
         guard let url = Bundle.main.url(forResource: "SystraSmall", withExtension: "png"), let image = NSImage(contentsOf: url) else { return nil }
         image.size = NSSize(width: 32, height: 32)

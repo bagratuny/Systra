@@ -18,15 +18,15 @@ func uptimeDuration(_ seconds: Double, compact: Bool = false) -> String {
     let total = Int(min(seconds, Double(Int.max / 2)))
     let days = total / 86400, hours = total % 86400 / 3600, minutes = total % 3600 / 60, remainder = total % 60
     if compact {
-        if days > 0 { return "\(days) д \(hours) ч" }
-        if hours > 0 { return "\(hours) ч \(minutes) мин" }
-        return "\(minutes) мин \(remainder) с"
+        if days > 0 { return L("{0} д {1} ч", String(describing: days), String(describing: hours)) }
+        if hours > 0 { return L("{0} ч {1} мин", String(describing: hours), String(describing: minutes)) }
+        return L("{0} мин {1} с", String(describing: minutes), String(describing: remainder))
     }
-    return "\(days) д \(hours) ч \(minutes) мин \(remainder) с"
+    return L("{0} д {1} ч {2} мин {3} с", String(describing: days), String(describing: hours), String(describing: minutes), String(describing: remainder))
 }
 struct SystemInformation {
-    let model = systemString("hw.model") ?? "Неизвестно"
-    let chip = systemString("machdep.cpu.brand_string") ?? "Неизвестно"
+    let model = systemString("hw.model") ?? L("Неизвестно")
+    let chip = systemString("machdep.cpu.brand_string") ?? L("Неизвестно")
     let kernel = systemString("kern.osrelease") ?? "—"
     let build = systemString("kern.osversion") ?? "—"
     let osVersion: String = {

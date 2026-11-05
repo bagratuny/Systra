@@ -55,22 +55,22 @@ struct AppUsage: Identifiable {
 func processRole(executable: String, arguments: String) -> String {
     let name = URL(fileURLWithPath: executable).lastPathComponent.lowercased()
     let args = arguments.lowercased()
-    if args.contains("--type=renderer") { return args.contains("--extension-process") ? "Расширение · renderer" : "Renderer · веб-контент" }
-    if args.contains("--type=gpu-process") { return "GPU-процесс" }
-    if args.contains("--utility-sub-type=network") { return "Сетевая служба" }
-    if args.contains("--utility-sub-type=audio") { return "Аудиослужба" }
-    if args.contains("--utility-sub-type=node") { return "Node.js · служба" }
-    if args.contains("--type=utility") { return "Вспомогательная служба" }
-    if name == "codex" || name == "claude" || name == "aider" || name == "opencode" { return "AI-агент · \(name)" }
+    if args.contains("--type=renderer") { return args.contains("--extension-process") ? L("Расширение · renderer") : L("Renderer · веб-контент") }
+    if args.contains("--type=gpu-process") { return L("GPU-процесс") }
+    if args.contains("--utility-sub-type=network") { return L("Сетевая служба") }
+    if args.contains("--utility-sub-type=audio") { return L("Аудиослужба") }
+    if args.contains("--utility-sub-type=node") { return L("Node.js · служба") }
+    if args.contains("--type=utility") { return L("Вспомогательная служба") }
+    if name == "codex" || name == "claude" || name == "aider" || name == "opencode" { return L("AI-агент · {0}", String(describing: name)) }
     if name == "node" || name == "bun" || name == "deno" {
         if args.contains("mcp") { return "MCP · \(name)" }
-        if args.contains("claude") || args.contains("codex") { return "AI-инструмент · \(name)" }
-        return "Среда выполнения · \(name)"
+        if args.contains("claude") || args.contains("codex") { return L("AI-инструмент · {0}", String(describing: name)) }
+        return L("Среда выполнения · {0}", String(describing: name))
     }
-    if name.contains("crashpad") { return "Отчёты о сбоях" }
+    if name.contains("crashpad") { return L("Отчёты о сбоях") }
     if name.contains("renderer") { return "Renderer" }
-    if name.contains("helper") { return "Вспомогательный процесс" }
-    return "Процесс"
+    if name.contains("helper") { return L("Вспомогательный процесс") }
+    return L("Процесс")
 }
 func collectProcesses() throws -> ProcessSnapshot {
     // Read argv only for role detection. Full command lines are never displayed or saved.
@@ -83,7 +83,7 @@ func collectProcesses() throws -> ProcessSnapshot {
     }
     var native = Array(repeating: SystraProcess(), count: 8192)
     let count = systra_processes(&native, Int32(native.count))
-    guard count >= 0 else { throw NSError(domain: "Systra", code: 1, userInfo: [NSLocalizedDescriptionKey: "Не удалось прочитать список процессов"]) }
+    guard count >= 0 else { throw NSError(domain: "Systra", code: 1, userInfo: [NSLocalizedDescriptionKey: L("Не удалось прочитать список процессов")]) }
     let rows = native.prefix(Int(count)).map { native -> ProcessSample in
         var native = native
         let path = withUnsafeBytes(of: &native.executable) { String(decoding: $0.prefix(while: { $0 != 0 }), as: UTF8.self) }
@@ -124,11 +124,11 @@ func processRows(_ current: ProcessSnapshot, previous: ProcessSnapshot?) -> [Pro
     func restart(_ usage: AppUsage) {
         guard restarting == nil, usage.restartable, usage.identity.isCurrent,
               let url = usage.bundleURL, let app = NSRunningApplication(processIdentifier: usage.id), app.bundleURL?.resolvingSymlinksInPath().standardizedFileURL == url.resolvingSymlinksInPath().standardizedFileURL else {
-            message = "Приложение уже завершилось или изменилось. Обнови выбор."; return
+            message = L("Приложение уже завершилось или изменилось. Обнови выбор."); return
         }
         restarting = usage.id
         message = nil
-        guard app.terminate() else { restarting = nil; message = "Приложение отклонило запрос на завершение."; return }
+        guard app.terminate() else { restarting = nil; message = L("Приложение отклонило запрос на завершение."); return }
         Task { @MainActor in
             for _ in 0..<120 {
                 if app.isTerminated {
@@ -136,42 +136,42 @@ func processRows(_ current: ProcessSnapshot, previous: ProcessSnapshot?) -> [Pro
                     config.activates = true
                     config.createsNewApplicationInstance = true
                     do { _ = try await NSWorkspace.shared.openApplication(at: url, configuration: config) }
-                    catch { message = "Приложение завершено, но не запустилось: \(error.localizedDescription)" }
+                    catch { message = L("Приложение завершено, но не запустилось: {0}", String(describing: error.localizedDescription)) }
                     restarting = nil
                     return
                 }
                 try? await Task.sleep(nanoseconds: 250_000_000)
             }
             restarting = nil
-            message = "Ожидание завершения истекло. Возможно, приложение ждёт сохранения документов. Повтори перезапуск после закрытия диалога."
+            message = L("Ожидание завершения истекло. Возможно, приложение ждёт сохранения документов. Повтори перезапуск после закрытия диалога.")
         }
     }
     func forceQuit(_ app: AppUsage) {
         guard app.id > 1, app.id != ProcessInfo.processInfo.processIdentifier, app.identity.isCurrent else {
-            message = "Приложение уже завершилось или изменилось. Обнови выбор."; return
+            message = L("Приложение уже завершилось или изменилось. Обнови выбор."); return
         }
         message = nil
         if let running = NSRunningApplication(processIdentifier: app.id) {
-            if !running.forceTerminate() { message = "Не удалось принудительно завершить приложение." }
+            if !running.forceTerminate() { message = L("Не удалось принудительно завершить приложение.") }
         } else if kill(app.id, SIGKILL) != 0 { message = String(cString: strerror(errno)) }
     }
     func forceQuit(_ process: ProcessRow) {
         guard process.pid > 1, process.pid != ProcessInfo.processInfo.processIdentifier, process.identity.isCurrent else {
-            message = "Процесс уже завершился или изменился. Обнови выбор."; return
+            message = L("Процесс уже завершился или изменился. Обнови выбор."); return
         }
         if kill(process.pid, SIGKILL) != 0 { message = String(cString: strerror(errno)) }
     }
     func terminateApplication(_ app: AppUsage) {
         guard app.id > 1, app.id != ProcessInfo.processInfo.processIdentifier, app.identity.isCurrent else {
-            message = "Приложение уже завершилось или изменилось. Обнови выбор."; return
+            message = L("Приложение уже завершилось или изменилось. Обнови выбор."); return
         }
         if let running = NSRunningApplication(processIdentifier: app.id) {
-            if !running.terminate() { message = "Приложение отклонило запрос на завершение." }
+            if !running.terminate() { message = L("Приложение отклонило запрос на завершение.") }
         } else if kill(app.id, SIGTERM) != 0 { message = String(cString: strerror(errno)) }
     }
     func terminate(_ process: ProcessRow) {
         guard process.pid > 1, process.pid != ProcessInfo.processInfo.processIdentifier, process.identity.isCurrent else {
-            message = "Процесс уже завершился или изменился. Обнови выбор."; return
+            message = L("Процесс уже завершился или изменился. Обнови выбор."); return
         }
         if kill(process.pid, SIGTERM) != 0 { message = String(cString: strerror(errno)) }
     }

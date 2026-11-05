@@ -1,6 +1,5 @@
 import Foundation
 import AppKit
-func bytes(_ value: UInt64) -> String { String(value) }
 @main struct AppSummaryChecks {
     static func process(_ pid: Int32, name: String, role: String, memory: UInt64?, footprint: UInt64?, cpu: Double?) -> ProcessRow {
         ProcessRow(identity: ProcessIdentity(pid: pid, seconds: 1, micros: 0), parent: 10, executable: "/test/" + name, role: role, cpu: cpu, memory: memory, footprint: footprint, readRate: nil, writeRate: nil, diskTotal: nil)
@@ -26,6 +25,10 @@ func bytes(_ value: UInt64) -> String { String(value) }
         precondition(category(of: members[2], appPID: 10) == .extensions)
         precondition(category(of: members[0], appPID: 10) == .main)
         precondition(category(of: process(18, name: "Safari Web Content", role: "Процесс", memory: nil, footprint: nil, cpu: nil), appPID: 10) == .tabs)
+        let englishRoles: [(String, ProcessCategory)] = [("Extension · renderer", .extensions), ("Renderer · web content", .tabs), ("Network service", .network), ("AI agent · codex", .agents), ("Runtime · node", .tools), ("AI tool · bun", .tools)]
+        for (role, expected) in englishRoles {
+            precondition(category(of: process(19, name: "helper", role: role, memory: nil, footprint: nil, cpu: nil), appPID: 10) == expected)
+        }
         print("PASS: sidebar categories, mutually exclusive groups, footprint fallback, CPU/memory totals and ranking")
     }
 }

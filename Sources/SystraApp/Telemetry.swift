@@ -128,10 +128,3 @@ func collectHardware() -> HardwareSnapshot {
     snapshot.time = ProcessInfo.processInfo.systemUptime
     return snapshot
 }
-
-func rate(_ value: Double?) -> String {
-    guard let value, value.isFinite, value >= 0 else { return "—" }
-    return bytes(UInt64(min(value, Double(Int64.max)))) + "/с"
-}
-func percent(_ value: Double?) -> String { value.map { String(format: "%.0f%%", $0) } ?? "—" }
-func degrees(_ value: Double?) -> String { value.map { String(format: "%.1f °C", $0) } ?? "Недоступно" }

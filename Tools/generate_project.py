@@ -14,9 +14,9 @@ for directory,target_files in [('Sources/SystraApp',app_files),('Sources/SensorB
         if not kind:continue
         reference=add(str(file.relative_to(ROOT)),isa='PBXFileReference',lastKnownFileType=kind,path=file.name,sourceTree='<group>');target_files.append(reference)
         if file.suffix!='.h':source_build.append(add('build:'+str(file.relative_to(ROOT)),isa='PBXBuildFile',fileRef=reference))
-for name,kind in [('Info.plist','text.plist.xml'),('Systra.icns','image.icns'),('Systra.png','image.png'),('SystraSmall.png','image.png'),('SystraMenu.png','image.png'),('SystraMenu@2x.png','image.png')]:
+for name,kind in [('Info.plist','text.plist.xml'),('Systra.icns','image.icns'),('Systra.png','image.png'),('SystraSmall.png','image.png'),('SystraMenu.png','image.png'),('SystraMenu@2x.png','image.png'),('English.json','text.json')]:
     reference=add('Resources/'+name,isa='PBXFileReference',lastKnownFileType=kind,path=name,sourceTree='<group>');resource_files.append(reference)
-    if name in ['Systra.icns', 'SystraSmall.png', 'SystraMenu.png', 'SystraMenu@2x.png']:resource_build.append(add('build:resource:'+name,isa='PBXBuildFile',fileRef=reference))
+    if name in ['Systra.icns', 'SystraSmall.png', 'SystraMenu.png', 'SystraMenu@2x.png', 'English.json']:resource_build.append(add('build:resource:'+name,isa='PBXBuildFile',fileRef=reference))
 app_group=group('app-group','SystraApp',app_files);sensor_group=group('sensor-group','SensorBridge',sensor_files)
 sources=group('sources','Sources',[app_group,sensor_group]);resources=group('resources','Resources',resource_files)
 product=add('product',isa='PBXFileReference',explicitFileType='wrapper.application',includeInIndex='0',path='Systra.app',sourceTree='BUILT_PRODUCTS_DIR')
@@ -40,7 +40,7 @@ project_configs=[];target_configs=[]
 for config in ['Debug','Release']:
     settings=dict(SDKROOT='macosx',MACOSX_DEPLOYMENT_TARGET='14.0',CLANG_ENABLE_MODULES='YES',SWIFT_VERSION='5.0')
     project_configs.append(add('project-'+config,isa='XCBuildConfiguration',name=config,buildSettings=settings))
-    settings=dict(PRODUCT_NAME='Systra',PRODUCT_BUNDLE_IDENTIFIER='com.arsenkocharyan.systra',INFOPLIST_FILE='Resources/Info.plist',GENERATE_INFOPLIST_FILE='NO',SWIFT_OBJC_BRIDGING_HEADER='Sources/SensorBridge/Sensors.h',HEADER_SEARCH_PATHS=['$(inherited)','$(SRCROOT)/Sources/SensorBridge'],CODE_SIGN_STYLE='Manual',CODE_SIGN_IDENTITY='-',ENABLE_HARDENED_RUNTIME='NO',ENABLE_APP_SANDBOX='NO',CURRENT_PROJECT_VERSION='15',MARKETING_VERSION='0.7.3',ARCHS='arm64',SUPPORTED_PLATFORMS='macosx',LD_RUNPATH_SEARCH_PATHS=['$(inherited)','@executable_path/../Frameworks'],OTHER_LDFLAGS=['$(inherited)','-framework','IOKit','-framework','Metal'],SWIFT_OPTIMIZATION_LEVEL='-Onone' if config=='Debug' else '-O',SWIFT_COMPILATION_MODE='singlefile' if config=='Debug' else 'wholemodule',GCC_OPTIMIZATION_LEVEL='0' if config=='Debug' else 's')
+    settings=dict(PRODUCT_NAME='Systra',PRODUCT_BUNDLE_IDENTIFIER='com.arsenkocharyan.systra',INFOPLIST_FILE='Resources/Info.plist',GENERATE_INFOPLIST_FILE='NO',SWIFT_OBJC_BRIDGING_HEADER='Sources/SensorBridge/Sensors.h',HEADER_SEARCH_PATHS=['$(inherited)','$(SRCROOT)/Sources/SensorBridge'],CODE_SIGN_STYLE='Manual',CODE_SIGN_IDENTITY='-',ENABLE_HARDENED_RUNTIME='NO',ENABLE_APP_SANDBOX='NO',CURRENT_PROJECT_VERSION='32',MARKETING_VERSION='0.9.4',ARCHS='arm64',SUPPORTED_PLATFORMS='macosx',LD_RUNPATH_SEARCH_PATHS=['$(inherited)','@executable_path/../Frameworks'],OTHER_LDFLAGS=['$(inherited)','-framework','IOKit','-framework','Metal','-framework','ServiceManagement'],SWIFT_OPTIMIZATION_LEVEL='-Onone' if config=='Debug' else '-O',SWIFT_COMPILATION_MODE='singlefile' if config=='Debug' else 'wholemodule',GCC_OPTIMIZATION_LEVEL='0' if config=='Debug' else 's')
     if config=='Debug':settings['SWIFT_ACTIVE_COMPILATION_CONDITIONS']='DEBUG'
     target_configs.append(add('target-'+config,isa='XCBuildConfiguration',name=config,buildSettings=settings))
 project_list=add('project-configs',isa='XCConfigurationList',buildConfigurations=project_configs,defaultConfigurationIsVisible='0',defaultConfigurationName='Release')

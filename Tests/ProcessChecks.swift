@@ -1,6 +1,5 @@
 import Foundation
 import AppKit
-func bytes(_ value: UInt64) -> String { String(value) }
 @main struct Checks {
     static func main() throws {
         precondition(processRole(executable: "/Chrome Helper", arguments: "--type=renderer") == "Renderer · веб-контент")

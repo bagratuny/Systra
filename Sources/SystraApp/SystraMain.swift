@@ -50,7 +50,7 @@ struct Sample: Identifiable {
     private var previousTicks: [UInt64]?
     private var timer: Timer?
     private var collecting = false
-    var statusChanged: ((Double) -> Void)?
+    var statusChanged: (() -> Void)?
 
     func start() {
         let notifications = NSWorkspace.shared.notificationCenter
@@ -87,6 +87,7 @@ struct Sample: Identifiable {
             if let temperature = snapshot.temperatures.filter({ $0.component == .chip || $0.component == .cpu || $0.component == .gpu }).map(\.value).max() { appendMetric("temperature", temperature) }
             if let value = diskRead { appendMetric("disk", value + (diskWrite ?? 0)) }
             if let value = download { appendMetric("network", value + (upload ?? 0)) }
+            statusChanged?()
         }
         guard let previous = previousHardware else { return }
         let elapsed = snapshot.time - previous.time
@@ -177,7 +178,6 @@ struct Sample: Identifiable {
         cpu = 100 * Double(total - delta[2]) / Double(total)
         history.append(Sample(value: cpu))
         if history.count > 60 { history.removeFirst(history.count - 60) }
-        statusChanged?(cpu)
     }
     private func readMemory() {
         var vm = vm_statistics64()
@@ -206,11 +206,6 @@ struct Sample: Identifiable {
     }
 }
 
-func bytes(_ value: UInt64) -> String {
-    if value == 0 { return "0 Б" }
-    return ByteCountFormatter.string(fromByteCount: Int64(clamping: value), countStyle: .memory)
-}
-
 struct MetricCard: View {
     let title: String
     let value: String
@@ -220,7 +215,7 @@ struct MetricCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title).font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
-            Text(value).font(.system(size: 32, weight: .medium, design: .rounded)).monospacedDigit()
+            Text(value).font(.system(size: 32, weight: .medium)).monospacedDigit()
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Capsule().fill(color.opacity(0.13))
@@ -229,7 +224,7 @@ struct MetricCard: View {
             }.frame(height: 5)
             Text(detail).font(.system(size: 11)).foregroundStyle(.secondary)
         }.padding(20).frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .instrumentSurface()
     }
 }
 
@@ -240,45 +235,28 @@ struct MetricCard: View {
     private var window: NSWindow!
     private var status: NSStatusItem!
     private let popover = NSPopover()
+    private var settingsWindow: NSWindow?
+    private weak var searchToolbar: NSSearchToolbarItem?
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
-        if let url = Bundle.main.url(forResource: "Systra", withExtension: "icns"), let icon = NSImage(contentsOf: url) {
-            NSApp.applicationIconImage = icon
-        }
-        let mainMenu = NSMenu()
-        let applicationItem = NSMenuItem()
-        let applicationMenu = NSMenu(title: "Systra")
-        applicationMenu.addItem(withTitle: "О Systra", action: #selector(showAbout), keyEquivalent: "").target = self
-        applicationMenu.addItem(.separator())
-        let metricsItem = applicationMenu.addItem(withTitle: "Показатели в строке меню", action: #selector(togglePopover), keyEquivalent: "p")
-        metricsItem.keyEquivalentModifierMask = [.command, .shift]
-        metricsItem.target = self
-        applicationMenu.addItem(withTitle: "Открыть монитор", action: #selector(show), keyEquivalent: "o").target = self
-        applicationMenu.addItem(.separator())
-        applicationMenu.addItem(withTitle: "Выйти из Systra", action: #selector(quit), keyEquivalent: "q").target = self
-        applicationItem.submenu = applicationMenu
-        mainMenu.addItem(applicationItem)
-        let fileItem = NSMenuItem()
-        let fileMenu = NSMenu(title: "Файл")
-        fileMenu.addItem(withTitle: "Закрыть окно", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
-        fileItem.submenu = fileMenu
-        mainMenu.addItem(fileItem)
-        NSApp.mainMenu = mainMenu
+        if let icon = SystraIcons.application { NSApp.applicationIconImage = icon }
+        AppSettings.shared.applyAppearance()
+        installMenus()
         status = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         status.button?.image = systraMenuBarIcon()
         status.button?.imagePosition = .imageLeading
-        status.button?.title = " —"
+        status.button?.title = AppSettings.shared.menuMetrics.isEmpty ? "" : " —"
         status.button?.target = self
         status.button?.action = #selector(togglePopover)
-        status.button?.toolTip = "Systra — показатели Mac"
+        status.button?.toolTip = L("Systra — показатели Mac")
         popover.behavior = .transient
         popover.contentSize = NSSize(width: 430, height: 650)
-        popover.contentViewController = NSHostingController(rootView: PopoverDashboard(monitor: monitor, openWindow: { [weak self] in self?.show() }, openAbout: { [weak self] in self?.showAbout() }, quit: { [weak self] in self?.quit() }, openApp: { [weak self] pid in self?.monitor.inspectionRequest = pid; self?.show() }, openSummary: { [weak self] pid in self?.monitor.summaryRequest = pid; self?.show() }).preferredColorScheme(.dark).background(Color(red: 0.13, green: 0.135, blue: 0.145)))
-        monitor.statusChanged = { [weak self] cpu in self?.status.button?.title = String(format: " %.0f%%", cpu) }
+        popover.contentViewController = NSHostingController(rootView: LocalizedRoot { [self] in PopoverDashboard(monitor: self.monitor, openWindow: { [weak self] in self?.show() }, openAbout: { [weak self] in self?.showAbout() }, openSettings: { [weak self] in self?.showSettings() }, quit: { [weak self] in self?.quit() }, openApp: { [weak self] pid in self?.monitor.inspectionRequest = pid; self?.show() }, openSummary: { [weak self] pid in self?.monitor.summaryRequest = pid; self?.show() }).background(InstrumentStyle.canvas) })
+        monitor.statusChanged = { [weak self] in self?.updateStatusTitle() }
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1080, height: 740),
                           styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.delegate = self
-        window.title = "Systra — монитор Mac"
+        window.title = L("Systra — монитор Mac")
         window.titleVisibility = .hidden
         window.toolbarStyle = .unified
         let toolbar = NSToolbar(identifier: "Systra.MainToolbar")
@@ -288,11 +266,28 @@ struct MetricCard: View {
         toolbar.showsBaselineSeparator = false
         toolbar.centeredItemIdentifier = .init("Systra.Tabs")
         window.toolbar = toolbar
-        window.contentView = NSHostingView(rootView: Dashboard(monitor: monitor, navigation: navigation))
+        // Extend the native titlebar by a small amount; unified toolbars cap item height.
+        let toolbarSpacing = NSTitlebarAccessoryViewController()
+        toolbarSpacing.layoutAttribute = .bottom
+        toolbarSpacing.automaticallyAdjustsSize = false
+        toolbarSpacing.view = NSView(frame: NSRect(x: 0, y: 0, width: 1, height: 8))
+        toolbarSpacing.view.heightAnchor.constraint(equalToConstant: 8).isActive = true
+        window.addTitlebarAccessoryViewController(toolbarSpacing)
+        window.contentView = NSHostingView(rootView: LocalizedRoot { Dashboard(monitor: self.monitor, navigation: self.navigation) })
         window.isReleasedWhenClosed = false
         window.center()
         show()
         monitor.start()
+        NotificationCenter.default.publisher(for: AppSettings.didChange).sink { [weak self] _ in
+            self?.installMenus()
+            self?.updateStatusTitle()
+            self?.window.title = L("Systra — монитор Mac")
+            self?.settingsWindow?.title = L("Настройки")
+            self?.window.toolbar?.items.first(where: { $0.itemIdentifier.rawValue == "Systra.Tabs" })?.label = L("Разделы Systra")
+            self?.searchToolbar?.label = L("Поиск приложений")
+            self?.searchToolbar?.searchField.placeholderString = L("Поиск приложений")
+            self?.status.button?.toolTip = L("Systra — показатели Mac")
+        }.store(in: &toolbarSubscriptions)
         if CommandLine.arguments.contains("--self-check") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [self] in
                 let healthy = monitor.updated != nil && !monitor.apps.isEmpty && monitor.usedMemory > 0 && monitor.history.count >= 2 && monitor.diskRead != nil && monitor.download != nil && monitor.hardware.gpu != nil && !monitor.hardware.temperatures.isEmpty
@@ -301,6 +296,48 @@ struct MetricCard: View {
                 exit(healthy ? 0 : 1)
             }
         }
+    }
+    private func installMenus() {
+        let mainMenu = NSMenu()
+        let applicationItem = NSMenuItem()
+        let applicationMenu = NSMenu(title: "Systra")
+        applicationMenu.addItem(withTitle: L("О Systra"), action: #selector(showAbout), keyEquivalent: "").target = self
+        applicationMenu.addItem(.separator())
+        applicationMenu.addItem(withTitle: L("Настройки…"), action: #selector(showSettings), keyEquivalent: ",").target = self
+        let metricsItem = applicationMenu.addItem(withTitle: L("Показатели в строке меню"), action: #selector(togglePopover), keyEquivalent: "p")
+        metricsItem.keyEquivalentModifierMask = [.command, .shift]
+        metricsItem.target = self
+        applicationMenu.addItem(withTitle: L("Открыть монитор"), action: #selector(show), keyEquivalent: "o").target = self
+        applicationMenu.addItem(.separator())
+        applicationMenu.addItem(withTitle: L("Выйти из Systra"), action: #selector(quit), keyEquivalent: "q").target = self
+        applicationItem.submenu = applicationMenu
+        mainMenu.addItem(applicationItem)
+        let fileItem = NSMenuItem()
+        let fileMenu = NSMenu(title: L("Файл"))
+        fileMenu.addItem(withTitle: L("Закрыть окно"), action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        fileItem.submenu = fileMenu
+        mainMenu.addItem(fileItem)
+        NSApp.mainMenu = mainMenu
+    }
+    private func updateStatusTitle() {
+        let text = monitor.menuBarReadings.text(for: AppSettings.shared.menuMetrics)
+        status.button?.title = text.isEmpty ? "" : " " + text
+        status.button?.font = NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium)
+    }
+    @objc func showSettings() {
+        popover.performClose(nil)
+        if settingsWindow == nil {
+            let panel = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 520, height: 560), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            panel.title = L("Настройки")
+            panel.contentView = NSHostingView(rootView: LocalizedRoot { SettingsView(monitor: self.monitor) })
+            panel.isReleasedWhenClosed = false
+            panel.delegate = self
+            panel.center()
+            settingsWindow = panel
+        }
+        NSApp.setActivationPolicy(.regular)
+        settingsWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     func toolbarAllowedItemIdentifiers(_ toolbar: NSToolbar) -> [NSToolbarItem.Identifier] {
         [.init("Systra.Brand"), .init("Systra.Tabs"), .init("Systra.Search"), .flexibleSpace]
@@ -311,10 +348,11 @@ struct MetricCard: View {
     func toolbar(_ toolbar: NSToolbar, itemForItemIdentifier identifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar flag: Bool) -> NSToolbarItem? {
         if identifier.rawValue == "Systra.Search" {
             let item = NSSearchToolbarItem(itemIdentifier: identifier)
-            item.label = "Поиск приложений"
+            searchToolbar = item
+            item.label = L("Поиск приложений")
             item.preferredWidthForSearchField = 180
             item.resignsFirstResponderWithCancel = true
-            item.searchField.placeholderString = "Поиск приложений"
+            item.searchField.placeholderString = L("Поиск приложений")
             item.searchField.sendsSearchStringImmediately = true
             item.searchField.delegate = self
             item.searchField.widthAnchor.constraint(lessThanOrEqualToConstant: 180).isActive = true
@@ -330,11 +368,11 @@ struct MetricCard: View {
         case "Systra.Brand":
             item.label = "Systra"
             item.visibilityPriority = .low
-            item.view = NSHostingView(rootView: WindowBrand(monitor: monitor, navigation: navigation))
+            item.view = NSHostingView(rootView: LocalizedRoot { WindowBrand(monitor: self.monitor, navigation: self.navigation) })
         case "Systra.Tabs":
-            item.label = "Разделы Systra"
+            item.label = L("Разделы Systra")
             item.visibilityPriority = .high
-            item.view = ToolbarHostingView(rootView: WindowTabs(navigation: navigation))
+            item.view = ToolbarHostingView(rootView: LocalizedRoot { WindowTabs(navigation: self.navigation) })
         default: return nil
         }
         return item
@@ -352,8 +390,10 @@ struct MetricCard: View {
         }
     }
     func windowWillClose(_ notification: Notification) {
-        guard let closing = notification.object as? NSWindow, closing === window else { return }
-        NSApp.setActivationPolicy(.accessory)
+        guard let closing = notification.object as? NSWindow else { return }
+        if closing === window && settingsWindow?.isVisible != true || closing === settingsWindow && !window.isVisible {
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     @objc func show() {
@@ -366,8 +406,10 @@ struct MetricCard: View {
         popover.performClose(nil)
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .center
-        let credits = NSAttributedString(string: "Монитор системы для macOS\n\nРазработчик: Arsen Kocharyan", attributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph])
-        NSApp.orderFrontStandardAboutPanel(options: [.applicationName: "Systra", .credits: credits])
+        let credits = NSAttributedString(string: L("Монитор системы для macOS\n\nРазработчик: Arsen Kocharyan"), attributes: [.font: NSFont.systemFont(ofSize: 12), .foregroundColor: NSColor.labelColor, .paragraphStyle: paragraph])
+        var options: [NSApplication.AboutPanelOptionKey: Any] = [.applicationName: "Systra", .credits: credits]
+        if let icon = SystraIcons.application { options[.applicationIcon] = icon }
+        NSApp.orderFrontStandardAboutPanel(options: options)
         NSApp.activate(ignoringOtherApps: true)
     }
     @objc func quit() { NSApp.terminate(nil) }
@@ -379,5 +421,13 @@ struct MetricCard: View {
         let delegate = AppDelegate()
         application.delegate = delegate
         withExtendedLifetime(delegate) { application.run() }
+    }
+}
+
+extension Monitor {
+    var menuBarReadings: MenuBarReadings {
+        MenuBarReadings(cpu: updated == nil ? nil : cpu, memory: updated == nil ? nil : usedMemory,
+            gpu: hardware.gpu, temperature: chipTemperature, diskRead: diskRead, diskWrite: diskWrite,
+            download: download, upload: upload, uptime: hardware.uptime.bootDate == nil ? nil : hardware.uptime.includingSleep)
     }
 }

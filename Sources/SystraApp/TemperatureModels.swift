@@ -21,12 +21,12 @@ enum TemperatureComponent: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .chip: return "Чип Apple Silicon"
-        case .cpu: return "Процессор"
-        case .gpu: return "Графика"
-        case .battery: return "Батарея"
-        case .storage: return "Накопитель SSD"
-        case .internalSensors: return "Внутренние датчики"
+        case .chip: return L("Чип Apple Silicon")
+        case .cpu: return L("Процессор")
+        case .gpu: return L("Графика")
+        case .battery: return L("Батарея")
+        case .storage: return L("Накопитель SSD")
+        case .internalSensors: return L("Внутренние датчики")
         }
     }
     var symbol: String {
@@ -40,15 +40,15 @@ enum TemperatureComponent: String, CaseIterable, Identifiable {
     }
     var detail: String {
         switch self {
-        case .chip: return "Температура в разных участках чипа. Точное соответствие ядрам macOS не сообщает."
-        case .cpu: return "Датчики, обозначенные macOS как CPU."
-        case .gpu: return "Датчики, обозначенные macOS как GPU."
-        case .battery: return "Показания температурных датчиков батареи."
-        case .storage: return "Температура датчиков накопителя; может отличаться от температуры его контроллера."
-        case .internalSensors: return "Дополнительные точки измерения. Их точное расположение macOS не раскрывает."
+        case .chip: return L("Температура в разных участках чипа. Точное соответствие ядрам macOS не сообщает.")
+        case .cpu: return L("Датчики, обозначенные macOS как CPU.")
+        case .gpu: return L("Датчики, обозначенные macOS как GPU.")
+        case .battery: return L("Показания температурных датчиков батареи.")
+        case .storage: return L("Температура датчиков накопителя; может отличаться от температуры его контроллера.")
+        case .internalSensors: return L("Дополнительные точки измерения. Их точное расположение macOS не раскрывает.")
         }
     }
-    var pointTitle: String { self == .chip ? "Участок чипа" : "Датчик" }
+    var pointTitle: String { self == .chip ? L("Участок чипа") : L("Датчик") }
 }
 
 struct TemperatureGroup: Identifiable {

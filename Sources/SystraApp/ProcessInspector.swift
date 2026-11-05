@@ -7,7 +7,7 @@ struct ProcessInspector: View {
     let target: Int32
     @Environment(\.dismiss) private var dismiss
     @State private var search = ""
-    @State private var sort = "Память"
+    @State private var sort = "memory"
     @State private var sortOrder = [KeyPathComparator(\ProcessRow.memorySortValue, order: .reverse), KeyPathComparator(\ProcessRow.pid)]
     @State private var selected = Set<ProcessIdentity>()
     @State private var confirmForceQuit = false
@@ -19,7 +19,7 @@ struct ProcessInspector: View {
         let filtered = (app?.processes ?? []).filter {
             search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) || $0.role.localizedCaseInsensitiveContains(search) || String($0.pid).contains(search)
         }
-        if sort == "Дерево" { return filtered.sorted { treeKey($0) < treeKey($1) } }
+        if sort == "tree" { return filtered.sorted { treeKey($0) < treeKey($1) } }
         return filtered.sorted(using: sortOrder)
     }
     var process: ProcessRow? { selected.count == 1 ? app?.processes.first { selected.contains($0.id) } : nil }
@@ -46,79 +46,79 @@ struct ProcessInspector: View {
             HStack(spacing: 12) {
                 if let icon = app?.icon { Image(nsImage: icon).resizable().frame(width: 36, height: 36) }
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(app?.name ?? "Приложение завершено").font(.title2.bold())
-                    Text("Процессов: \(app?.count ?? 0) · PID \(target)").font(.caption).foregroundStyle(.secondary)
+                    Text(app?.name ?? L("Приложение завершено")).font(.title2.weight(.medium))
+                    Text(L("Процессов: {0} · PID {1}", String(describing: app?.count ?? 0), String(describing: target))).font(.caption).foregroundStyle(.secondary)
                 }
                 Spacer()
                 Text(percent(app?.cpu)).font(.title2.monospacedDigit()).foregroundStyle(.mint)
                 Text(app.map { bytes($0.memory) } ?? "—").font(.title2.monospacedDigit()).padding(.leading)
             }
             HStack {
-                TextField("Имя, роль или PID", text: $search).textFieldStyle(.roundedBorder).frame(width: 240)
+                TextField(L("Имя, роль или PID"), text: $search).textFieldStyle(.roundedBorder).frame(width: 240)
                 Spacer()
-                Picker("Показать", selection: $sort) { Text("По памяти").tag("Память"); Text("По CPU").tag("CPU"); Text("По RSS").tag("RSS"); Text("По столбцу").tag("Столбец"); Text("Дерево процессов").tag("Дерево") }.frame(width: 245)
+                Picker(L("Показать"), selection: $sort) { Text(L("По памяти")).tag("memory"); Text(L("По CPU")).tag("CPU"); Text(L("По RSS")).tag("RSS"); Text(L("По столбцу")).tag("column"); Text(L("Дерево процессов")).tag("tree") }.frame(width: 245)
             }
             Table(rows, selection: $selected, sortOrder: $sortOrder) {
-                TableColumn("Процесс / роль", value: \.name) { row in
+                TableColumn(L("Процесс / роль"), value: \.name) { row in
                     HStack(spacing: 6) {
-                        if sort == "Дерево" { Color.clear.frame(width: CGFloat(depth(row) * 12)); Image(systemName: "arrow.turn.down.right").foregroundStyle(.tertiary) }
+                        if sort == "tree" { Color.clear.frame(width: CGFloat(depth(row) * 12)); Image(systemName: "arrow.turn.down.right").foregroundStyle(.tertiary) }
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(row.pid == target ? "Основной процесс" : row.role).font(.system(size: 14, weight: .medium)).lineLimit(1)
-                            Text(row.name).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                            Text(row.pid == target ? L("Основной процесс") : row.role).font(.system(size: 14, weight: .medium)).lineLimit(1)
+                            Text(row.name).font(.system(size: 12)).foregroundStyle(.secondary).lineLimit(1)
                         }
                     }.padding(.vertical, 9)
                 }.width(min: 235, ideal: 285)
                 TableColumn("PID / PPID", value: \.pid) { row in
-                    VStack(alignment: .leading, spacing: 3) { Text(String(row.pid)); Text("↳ \(row.parent)").foregroundStyle(.secondary).font(.system(size: 11)) }.monospacedDigit()
+                    VStack(alignment: .leading, spacing: 3) { Text(String(row.pid)); Text("↳ \(row.parent)").foregroundStyle(.secondary).font(.system(size: 12)) }.monospacedDigit()
                 }.width(85)
-                TableColumn("CPU", value: \.cpuSortValue) { row in Text(row.cpu.map { String(format: "%.1f%%", $0) } ?? "—").monospacedDigit() }.width(70)
-                TableColumn("Память", value: \.memorySortValue) { row in Text(row.footprint.map(bytes) ?? "—").monospacedDigit() }.width(90)
-                TableColumn("Память RSS", value: \.rssSortValue) { row in Text(row.memory.map(bytes) ?? "—").monospacedDigit() }.width(95)
-                TableColumn("Чтение/с", value: \.readSortValue) { row in Text(rate(row.readRate)).monospacedDigit() }.width(95)
-                TableColumn("Запись/с", value: \.writeSortValue) { row in Text(rate(row.writeRate)).monospacedDigit() }.width(95)
+                TableColumn("CPU", value: \.cpuSortValue) { row in Text(row.cpu.map { percent($0) } ?? "—").monospacedDigit() }.width(70)
+                TableColumn(L("Память"), value: \.memorySortValue) { row in Text(row.footprint.map(bytes) ?? "—").monospacedDigit() }.width(90)
+                TableColumn(L("Память RSS"), value: \.rssSortValue) { row in Text(row.memory.map(bytes) ?? "—").monospacedDigit() }.width(95)
+                TableColumn(L("Чтение/с"), value: \.readSortValue) { row in Text(rate(row.readRate)).monospacedDigit() }.width(95)
+                TableColumn(L("Запись/с"), value: \.writeSortValue) { row in Text(rate(row.writeRate)).monospacedDigit() }.width(95)
             }.frame(minHeight: 270)
                 .background(ProcessHeaderTooltips())
             if let process {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(process.executable).font(.system(size: 10, design: .monospaced)).textSelection(.enabled).lineLimit(2)
-                    if let total = process.diskTotal { Text("За время жизни процесса: прочитано \(bytes(total.input)), записано \(bytes(total.output))").font(.caption2).foregroundStyle(.secondary) }
-                }.padding(10).frame(maxWidth: .infinity, alignment: .leading).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
+                    if let total = process.diskTotal { Text(L("За время жизни процесса: прочитано {0}, записано {1}", String(describing: bytes(total.input)), String(describing: bytes(total.output)))).font(.caption2).foregroundStyle(.secondary) }
+                }.padding(12).frame(maxWidth: .infinity, alignment: .leading).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))
             }
-            Text("CPU за интервал, 100% = одно ядро. Память — footprint, включая сжатые страницы; RSS — резидентные страницы. Общие страницы могут учитываться повторно. «—» означает, что macOS не предоставила данные или ещё нет второго замера. Дисковые счётчики процессов могут отличаться от физических операций SSD.")
-                .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(L("CPU за интервал, 100% = одно ядро. Память — footprint, включая сжатые страницы; RSS — резидентные страницы. Общие страницы могут учитываться повторно. «—» означает, что macOS не предоставила данные или ещё нет второго замера. Дисковые счётчики процессов могут отличаться от физических операций SSD."))
+                .font(.system(size: 12)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             if app?.name.localizedCaseInsensitiveContains("chrome") == true {
-                Label("Renderer может обслуживать несколько вкладок или часть страницы. macOS не сообщает названия вкладок и их соответствие PID.", systemImage: "info.circle")
-                    .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                Label(L("Renderer может обслуживать несколько вкладок или часть страницы. macOS не сообщает названия вкладок и их соответствие PID."), systemImage: "info.circle")
+                    .font(.system(size: 12)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             if let message = actions.message { Text(message).font(.caption).foregroundStyle(.orange) }
             HStack {
-                Text("Выбрано: \(selected.count)").font(.caption).foregroundStyle(.secondary)
-                Button("Завершить процессы…") { confirmTerminate = true }.disabled(selectedProcesses.isEmpty || selectedProcesses.contains { $0.pid == ProcessInfo.processInfo.processIdentifier || $0.pid == 1 })
-                Button(actions.restarting == nil ? "Перезапустить приложение…" : "Перезапуск…") { confirmRestart = true }.disabled(app?.restartable != true || actions.restarting != nil)
-                Button("Принудительно…", role: .destructive) { confirmForceQuit = true }
+                Text(L("Выбрано: {0}", String(describing: selected.count))).font(.caption).foregroundStyle(.secondary)
+                Button(L("Завершить процессы…")) { confirmTerminate = true }.disabled(selectedProcesses.isEmpty || selectedProcesses.contains { $0.pid == ProcessInfo.processInfo.processIdentifier || $0.pid == 1 })
+                Button(actions.restarting == nil ? L("Перезапустить приложение…") : L("Перезапуск…")) { confirmRestart = true }.disabled(app?.restartable != true || actions.restarting != nil)
+                Button(L("Принудительно…"), role: .destructive) { confirmForceQuit = true }
                     .disabled(selectedProcesses.isEmpty || selectedProcesses.contains { $0.pid <= 1 || $0.pid == ProcessInfo.processInfo.processIdentifier })
                 Spacer()
-                Button("Готово") { dismiss() }.keyboardShortcut(.defaultAction)
+                Button(L("Готово")) { dismiss() }.keyboardShortcut(.defaultAction)
             }
-        }.padding(22).frame(width: 940, height: 650)
+        }.padding(24).frame(width: 940, height: 650)
         .onChange(of: sort) { _, value in
             if value == "CPU" { sortOrder = [KeyPathComparator(\ProcessRow.cpuSortValue, order: .reverse), KeyPathComparator(\ProcessRow.pid)] }
-            if value == "Память" { sortOrder = [KeyPathComparator(\ProcessRow.memorySortValue, order: .reverse), KeyPathComparator(\ProcessRow.pid)] }
+            if value == "memory" { sortOrder = [KeyPathComparator(\ProcessRow.memorySortValue, order: .reverse), KeyPathComparator(\ProcessRow.pid)] }
             if value == "RSS" { sortOrder = [KeyPathComparator(\ProcessRow.rssSortValue, order: .reverse), KeyPathComparator(\ProcessRow.pid)] }
         }
-        .onChange(of: sortOrder) { _, _ in if sort != "Дерево" { sort = "Столбец" } }
-        .alert("Завершить выбранные процессы принудительно?", isPresented: $confirmForceQuit) {
-            Button("Отмена", role: .cancel) {}
-            Button("Завершить принудительно", role: .destructive) { for process in selectedProcesses { actions.forceQuit(process) } }
-        } message: { Text("Процессы будут остановлены немедленно. Несохранённые данные и текущие задачи могут потеряться.") }
-        .alert("Завершить выбранные процессы?", isPresented: $confirmTerminate) {
-            Button("Отмена", role: .cancel) {}
-            Button("Завершить", role: .destructive) { for process in selectedProcesses { actions.terminate(process) } }
-        } message: { Text("Завершение renderer или агента может прервать вкладку или текущую задачу. Приложение может автоматически создать процесс заново.") }
-        .alert("Перезапустить всё приложение?", isPresented: $confirmRestart) {
-            Button("Отмена", role: .cancel) {}
-            Button("Перезапустить", role: .destructive) { if let app { actions.restart(app) } }
-        } message: { Text("Сохрани документы. Systra отправит обычный запрос на завершение, дождётся выхода и заново откроет приложение.") }
+        .onChange(of: sortOrder) { _, _ in if sort != "tree" { sort = "column" } }
+        .alert(L("Завершить выбранные процессы принудительно?"), isPresented: $confirmForceQuit) {
+            Button(L("Отмена"), role: .cancel) {}
+            Button(L("Завершить принудительно"), role: .destructive) { for process in selectedProcesses { actions.forceQuit(process) } }
+        } message: { Text(L("Процессы будут остановлены немедленно. Несохранённые данные и текущие задачи могут потеряться.")) }
+        .alert(L("Завершить выбранные процессы?"), isPresented: $confirmTerminate) {
+            Button(L("Отмена"), role: .cancel) {}
+            Button(L("Завершить"), role: .destructive) { for process in selectedProcesses { actions.terminate(process) } }
+        } message: { Text(L("Завершение renderer или агента может прервать вкладку или текущую задачу. Приложение может автоматически создать процесс заново.")) }
+        .alert(L("Перезапустить всё приложение?"), isPresented: $confirmRestart) {
+            Button(L("Отмена"), role: .cancel) {}
+            Button(L("Перезапустить"), role: .destructive) { if let app { actions.restart(app) } }
+        } message: { Text(L("Сохрани документы. Systra отправит обычный запрос на завершение, дождётся выхода и заново откроет приложение.")) }
     }
 }
 
@@ -136,14 +136,15 @@ private struct ProcessHeaderTooltips: NSViewRepresentable {
             var ancestor = view.superview
             while let root = ancestor {
                 if let table = table(in: root) {
+                    if let scroll = table.enclosingScrollView { SystraScrollAppearance.apply(to: scroll) }
                     let descriptions = [
-                        "Процесс / роль": "Имя исполняемого файла и роль процесса внутри приложения: основной процесс, веб-контент, расширение, GPU или агент.",
-                        "PID / PPID": "PID — идентификатор процесса; PPID (строка со стрелкой) — идентификатор родительского процесса. После перезапуска PID обычно меняется.",
+                        L("Процесс / роль"): L("Имя исполняемого файла и роль процесса внутри приложения: основной процесс, веб-контент, расширение, GPU или агент."),
+                        "PID / PPID": L("PID — идентификатор процесса; PPID (строка со стрелкой) — идентификатор родительского процесса. После перезапуска PID обычно меняется."),
                         "CPU": AppColumn.cpu.help,
-                        "Память": "Память (footprint), учитываемая macOS за процессом, включая сжатые страницы. Общие страницы могут учитываться повторно. «—» — показатель недоступен.",
-                        "Память RSS": AppColumn.rss.help,
-                        "Чтение/с": AppColumn.read.help,
-                        "Запись/с": AppColumn.write.help
+                        L("Память"): L("Память (footprint), учитываемая macOS за процессом, включая сжатые страницы. Общие страницы могут учитываться повторно. «—» — показатель недоступен."),
+                        L("Память RSS"): AppColumn.rss.help,
+                        L("Чтение/с"): AppColumn.read.help,
+                        L("Запись/с"): AppColumn.write.help
                     ]
                     for column in table.tableColumns { column.headerToolTip = descriptions[column.title] }
                     return

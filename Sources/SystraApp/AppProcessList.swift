@@ -31,25 +31,25 @@ struct InlineProcessRows: View {
             ForEach(orderedProcesses(app.processes, byCPU: byCPU)) { process in
                 HStack(spacing: compact ? 7 : 10) {
                     Image(systemName: process.pid == app.id ? "app" : "arrow.turn.down.right")
-                        .font(.system(size: 10)).foregroundStyle(.tertiary).frame(width: 14)
+                        .font(.system(size: 12)).foregroundStyle(.tertiary).frame(width: 14)
                     VStack(alignment: .leading, spacing: compact ? 3 : 1) {
-                        Text(process.pid == app.id ? "Основной процесс" : (process.role == "Процесс" ? process.name : process.role))
+                        Text(process.pid == app.id ? L("Основной процесс") : (process.role == L("Процесс") ? process.name : process.role))
                             .font(.system(size: compact ? 11 : 14, weight: .medium)).lineLimit(1)
                         Text(compact ? "PID \(process.pid)" : "\(process.name) · PID \(process.pid)")
                             .font(.system(size: compact ? 10 : 11)).foregroundStyle(.secondary).lineLimit(1)
                     }
                     Spacer(minLength: 3)
-                    Text(process.cpu.map { String(format: "%.1f%%", $0) } ?? "—")
-                        .font(.system(size: compact ? 11 : 14)).monospacedDigit()
+                    Text(process.cpu.map { percent($0) } ?? "—")
+                        .font(.system(size: compact ? 11 : 13)).monospacedDigit()
                         .foregroundStyle(.secondary).frame(width: compact ? 47 : 80, alignment: .trailing)
                     Text((process.footprint ?? process.memory).map(bytes) ?? "—")
-                        .font(.system(size: compact ? 11 : 14, weight: .medium)).monospacedDigit()
+                        .font(.system(size: compact ? 11 : 13, weight: .medium)).monospacedDigit()
                         .frame(width: compact ? 65 : 110, alignment: .trailing)
                 }.padding(.vertical, compact ? 8 : 9).padding(.horizontal, compact ? 5 : 12)
                     .frame(maxWidth: .infinity).contentShape(Rectangle())
                     .background(selectedProcesses.contains(process.id) ? Color.accentColor.opacity(0.18) : .clear)
                     .onTapGesture { selectProcess?(process.id) }
-                    .help("\(process.executable)\nCPU за интервал · память footprint")
+                    .help(L("{0}\nCPU за интервал · память footprint", String(describing: process.executable)))
                 Divider().opacity(0.35)
             }
         }.padding(.leading, compact ? 7 : 25)
@@ -69,24 +69,40 @@ struct AppProcessList: View {
     @State private var selection = RowSelection<MonitorRowID>()
     @State private var expanded = Set<ProcessIdentity>()
     @State private var overrideSort: AppTableSort?
-    @State private var visibleColumns: Set<AppColumn> = [.pid, .cpu, .memory, .rss, .processes, .read, .write, .uptime]
+    @AppStorage("systra.columns.detailed") private var detailedColumnNames = "pid,cpu,memory,rss,processes,read,write,uptime"
+    @AppStorage("systra.columns.compact") private var compactColumnNames = "cpu,memory"
+    private var visibleColumns: Set<AppColumn> {
+        Set((detailed ? detailedColumnNames : compactColumnNames).split(separator: ",").compactMap { AppColumn(rawValue: String($0)) })
+    }
+    private var availableColumns: [AppColumn] { detailed ? AppColumn.allCases.filter { $0 != .name } : [.cpu, .memory] }
     @State private var menuTarget: AppUsage?
     @State private var confirmRestart = false
     @State private var confirmQuit = false
     @State private var menuError: String?
     @StateObject private var actions = AppActions()
-    private var sorting: AppTableSort { overrideSort ?? AppTableSort(column: byCPU ? .cpu : .memory, ascending: false) }
-    private var columns: [AppColumn] { detailed ? [.name] + AppColumn.allCases.filter { $0 != .name && visibleColumns.contains($0) } : [.name, .cpu, .memory] }
+    private var sorting: AppTableSort {
+        let preferred = overrideSort ?? AppTableSort(column: byCPU ? .cpu : .memory, ascending: false)
+        if columns.contains(preferred.column) { return preferred }
+        let fallback: AppColumn = columns.contains(.cpu) ? .cpu : columns.contains(.memory) ? .memory : .name
+        return AppTableSort(column: fallback, ascending: fallback == .name)
+    }
+    private var columns: [AppColumn] { [.name] + availableColumns.filter { visibleColumns.contains($0) } }
     private var orderedApps: [AppUsage] { sortedApps(apps, by: sorting) }
-    private var minimumWidth: CGFloat { columns.reduce(0) { $0 + $1.width } + CGFloat(columns.count - 1) * 10 + 52 }
+    private var nameWidth: CGFloat { detailed ? AppColumn.name.width : 188 }
+    private func columnWidth(_ column: AppColumn) -> CGFloat {
+        if !detailed && column == .cpu { return 64 }
+        if !detailed && column == .memory { return 88 }
+        return column.width
+    }
+    private var minimumWidth: CGFloat { columns.reduce(0) { $0 + ($1 == .name ? nameWidth : columnWidth($1)) } + CGFloat(columns.count - 1) * 12 + 52 }
     var body: some View {
         VStack(spacing: 0) {
             GeometryReader { geometry in
-                ScrollView(.horizontal) {
+                SystraScrollView(.horizontal) {
                     VStack(spacing: 8) {
                         header
                             .zIndex(1)
-                        ScrollView(.vertical) {
+                        SystraScrollView(.vertical) {
                             LazyVStack(spacing: 0) {
                                 ForEach(orderedApps) { app in
                                     VStack(spacing: 0) {
@@ -98,7 +114,7 @@ struct AppProcessList: View {
                                         Divider().opacity(0.3)
                                     }
                                 }
-                                if apps.isEmpty { Text("Ничего не найдено").foregroundStyle(.secondary).padding(24) }
+                                if apps.isEmpty { Text(L("Ничего не найдено")).foregroundStyle(.secondary).padding(24) }
                             }
                         }
                     }.frame(width: max(geometry.size.width - 8, minimumWidth), height: max(0, geometry.size.height - 8))
@@ -107,8 +123,8 @@ struct AppProcessList: View {
             }
             if !selection.items.isEmpty {
                 HStack {
-                    Text("Выбрано: \(selection.items.count)")
-                    Button("Завершить принудительно…", role: .destructive) {
+                    Text(L("Выбрано: {0}", String(describing: selection.items.count)))
+                    Button(L("Завершить принудительно…"), role: .destructive) {
                         forceApps = apps.filter { selection.items.contains(.app($0.identity)) && $0.id > 1 && $0.id != ProcessInfo.processInfo.processIdentifier }
                         let covered = Set(forceApps.flatMap { $0.processes.map(\.id) })
                         var seen = covered
@@ -116,36 +132,36 @@ struct AppProcessList: View {
                         confirmSelectionForceQuit = !forceApps.isEmpty || !forceProcesses.isEmpty
                     }
                     Spacer()
-                    Button("Снять выделение") { selection = RowSelection(); selected = nil }
+                    Button(L("Снять выделение")) { selection = RowSelection(); selected = nil }
                         .buttonStyle(.plain)
                 }.font(.caption).foregroundStyle(.secondary).padding(8)
-                    .help("⌘-клик — несколько строк; Shift-клик — диапазон")
+                    .help(L("⌘-клик — несколько строк; Shift-клик — диапазон"))
             }
             if let message = menuError ?? actions.message { Text(message).font(.caption).foregroundStyle(.orange).padding(6) }
         }
             .onChange(of: byCPU) { _, _ in overrideSort = nil }
-            .alert("Завершить выбранное принудительно?", isPresented: $confirmSelectionForceQuit) {
-                Button("Отмена", role: .cancel) {}
-                Button("Завершить принудительно", role: .destructive) {
+            .alert(L("Завершить выбранное принудительно?"), isPresented: $confirmSelectionForceQuit) {
+                Button(L("Отмена"), role: .cancel) {}
+                Button(L("Завершить принудительно"), role: .destructive) {
                     for app in forceApps { actions.forceQuit(app) }
                     for process in forceProcesses { actions.forceQuit(process) }
                 }
-            } message: { Text("Приложений: \(forceApps.count), отдельных процессов: \(forceProcesses.count). Несохранённые данные могут потеряться.") }
-            .alert("Завершить принудительно?", isPresented: $confirmForceQuit, presenting: menuTarget) { app in
-                Button("Отмена", role: .cancel) {}
-                Button("Завершить принудительно", role: .destructive) { actions.forceQuit(app) }
-            } message: { app in Text("\(app.name) будет завершено без сохранения. Несохранённые данные могут потеряться.") }
-            .alert("Перезапустить приложение?", isPresented: $confirmRestart, presenting: menuTarget) { app in
-                Button("Отмена", role: .cancel) {}
-                Button("Перезапустить", role: .destructive) { actions.restart(app) }
-            } message: { app in Text("\(app.name) будет закрыто обычным запросом и открыто заново. Сохрани документы перед продолжением.") }
-            .alert("Завершить приложение?", isPresented: $confirmQuit, presenting: menuTarget) { app in
-                Button("Отмена", role: .cancel) {}
-                Button("Завершить", role: .destructive) { quit(app) }
-            } message: { app in Text("Завершить \(app.name)? Сохрани документы перед продолжением.") }
+            } message: { Text(L("Приложений: {0}, отдельных процессов: {1}. Несохранённые данные могут потеряться.", String(describing: forceApps.count), String(describing: forceProcesses.count))) }
+            .alert(L("Завершить принудительно?"), isPresented: $confirmForceQuit, presenting: menuTarget) { app in
+                Button(L("Отмена"), role: .cancel) {}
+                Button(L("Завершить принудительно"), role: .destructive) { actions.forceQuit(app) }
+            } message: { app in Text(L("{0} будет завершено без сохранения. Несохранённые данные могут потеряться.", String(describing: app.name))) }
+            .alert(L("Перезапустить приложение?"), isPresented: $confirmRestart, presenting: menuTarget) { app in
+                Button(L("Отмена"), role: .cancel) {}
+                Button(L("Перезапустить"), role: .destructive) { actions.restart(app) }
+            } message: { app in Text(L("{0} будет закрыто обычным запросом и открыто заново. Сохрани документы перед продолжением.", String(describing: app.name))) }
+            .alert(L("Завершить приложение?"), isPresented: $confirmQuit, presenting: menuTarget) { app in
+                Button(L("Отмена"), role: .cancel) {}
+                Button(L("Завершить"), role: .destructive) { quit(app) }
+            } message: { app in Text(L("Завершить {0}? Сохрани документы перед продолжением.", String(describing: app.name))) }
     }
     private var header: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             ForEach(columns) { column in
                 Button {
                     if sorting.column == column { overrideSort = AppTableSort(column: column, ascending: !sorting.ascending) }
@@ -154,64 +170,76 @@ struct AppProcessList: View {
                     HStack(spacing: 4) {
                         if column != .name { Spacer(minLength: 0) }
                         Text(column.title)
-                        if sorting.column == column { Image(systemName: sorting.ascending ? "chevron.up" : "chevron.down").font(.system(size: 9, weight: .bold)) }
+                        if sorting.column == column { Image(systemName: sorting.ascending ? "chevron.up" : "chevron.down").font(.system(size: 9, weight: .semibold)) }
                         if column == .name { Spacer(minLength: 0) }
                     }.contentShape(Rectangle())
                 }.buttonStyle(.plain).font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary)
-                    .frame(width: column == .name ? nil : column.width, alignment: column == .name ? .leading : .trailing)
-                    .frame(minWidth: column == .name ? column.width : nil, maxWidth: column == .name ? .infinity : nil)
-                    .help(column.help + "\nНажми заголовок для сортировки; повторное нажатие меняет порядок.")
-                    .accessibilityLabel("Сортировать: \(column.title)")
-                    .accessibilityValue(sorting.column == column ? (sorting.ascending ? "По возрастанию" : "По убыванию") : "")
+                    .frame(width: column == .name ? nil : columnWidth(column), alignment: column == .name ? .leading : .trailing)
+                    .frame(minWidth: column == .name ? nameWidth : nil, maxWidth: column == .name ? .infinity : nil)
+                    .contextMenu { columnControls }
+                    .help(column.help + L("\nНажми для сортировки. Правый клик — выбор столбцов."))
+                    .accessibilityLabel(L("Сортировать: {0}", String(describing: column.title)))
+                    .accessibilityValue(sorting.column == column ? (sorting.ascending ? L("По возрастанию") : L("По убыванию")) : "")
             }
             Color.clear.frame(width: 22, height: 1)
-        }.padding(.horizontal, 10).frame(height: 34)
+        }.padding(.horizontal, 12).frame(height: 36)
             .background(Color.primary.opacity(0.065), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
             .shadow(color: .black.opacity(0.18), radius: 4, x: 0, y: 3)
+            .contextMenu { columnControls }
     }
     private func appRow(_ app: AppUsage) -> some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 12) {
             Button {
                 if !expanded.insert(app.identity).inserted { expanded.remove(app.identity) }
             } label: {
                 Image(systemName: expanded.contains(app.identity) ? "chevron.down" : "chevron.right")
-                    .font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
-                    .frame(width: 24, height: 54).contentShape(Rectangle())
-            }.buttonStyle(.plain).accessibilityLabel("\(expanded.contains(app.identity) ? "Свернуть" : "Раскрыть") процессы \(app.name)")
+                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
+                    .frame(width: 24, height: 56).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityLabel(L("{0} процессы {1}", String(describing: expanded.contains(app.identity) ? L("Свернуть") : L("Раскрыть")), String(describing: app.name)))
             Button { selectRow(.app(app.identity)); selected = app.id } label: {
-                HStack(spacing: 10) {
-                    HStack(spacing: 10) {
+                HStack(spacing: 12) {
+                    HStack(spacing: 12) {
                         if let icon = app.icon { Image(nsImage: icon).resizable().frame(width: 28, height: 28) }
                         else { Image(systemName: "gearshape").frame(width: 28, height: 28).foregroundStyle(.secondary) }
                         VStack(alignment: .leading, spacing: 4) {
                             Text(app.name).font(.system(size: 15, weight: .medium)).lineLimit(1)
-                            Text(detailed ? "PID \(app.id) · \(app.isBackground ? "фоновое" : "приложение")" : "PID \(app.id) · процессов: \(app.count)")
-                                .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                            Text(detailed ? "PID \(app.id) · \(app.isBackground ? L("фоновое") : L("приложение"))" : L("PID {0} · процессов: {1}", String(describing: app.id), String(describing: app.count)))
+                                .font(.system(size: 12)).foregroundStyle(.secondary).lineLimit(1)
                         }
                         Spacer(minLength: 0)
-                    }.frame(minWidth: AppColumn.name.width - 34, maxWidth: .infinity)
+                    }.frame(minWidth: nameWidth - 34, maxWidth: .infinity)
                     ForEach(columns.filter { $0 != .name }) { column in
-                        Text(app.text(column)).font(.system(size: 14)).monospacedDigit().lineLimit(1).frame(width: column.width, alignment: .trailing)
+                        Text(app.text(column)).font(.system(size: 13)).monospacedDigit().lineLimit(1).frame(width: columnWidth(column), alignment: .trailing)
                     }
-                }.frame(height: 54).contentShape(Rectangle())
-            }.buttonStyle(.plain).accessibilityLabel("Сводка приложения \(app.name)")
-            Button { inspect(app.id) } label: { Image(systemName: "ellipsis.circle").font(.system(size: 15)).frame(width: 22, height: 36) }
-                .buttonStyle(.borderless).help("Подробный инспектор \(app.name)")
-        }.padding(.horizontal, 10).frame(height: 54).contentShape(Rectangle())
+                }.frame(height: 56).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityLabel(L("Сводка приложения {0}", String(describing: app.name)))
+            Button { inspect(app.id) } label: { Image(systemName: "info.circle").font(.system(size: 15)).frame(width: 22, height: 36) }
+                .buttonStyle(.borderless).help(L("Подробный инспектор {0}", String(describing: app.name)))
+        }.padding(.horizontal, 12).frame(height: 56).contentShape(Rectangle())
             .background(selection.items.contains(.app(app.identity)) ? Color.accentColor.opacity(0.13) : .clear)
             .contextMenu {
                 contextMenu(app)
-                if detailed {
-                    Divider()
-                    Menu("Столбцы", systemImage: "rectangle.split.3x1") {
-                        ForEach(AppColumn.allCases.filter { $0 != .name }) { column in
-                            Toggle(column.title, isOn: Binding(get: { visibleColumns.contains(column) }, set: { value in
-                                if value { visibleColumns.insert(column) } else { visibleColumns.remove(column) }
-                            }))
-                        }
-                    }
-                }
+                Divider()
+                Menu(L("Столбцы"), systemImage: "rectangle.split.3x1") { columnControls }
             }
+    }
+    private var columnControls: some View {
+        Group {
+            Toggle(AppColumn.name.title, isOn: .constant(true)).disabled(true)
+            ForEach(availableColumns) { column in
+                Toggle(column.title, isOn: Binding(get: { visibleColumns.contains(column) }, set: { shown in
+                    var values = visibleColumns
+                    if shown { values.insert(column) } else { values.remove(column) }
+                    saveColumns(values)
+                }))
+            }
+            Divider()
+            Button(L("Восстановить столбцы")) { saveColumns(Set(availableColumns)) }
+        }
+    }
+    private func saveColumns(_ values: Set<AppColumn>) {
+        let encoded = availableColumns.filter { values.contains($0) }.map(\.rawValue).joined(separator: ",")
+        if detailed { detailedColumnNames = encoded } else { compactColumnNames = encoded }
     }
     private func contextMenu(_ app: AppUsage) -> some View {
         ApplicationContextMenu(app: app, restartEnabled: actions.restarting == nil, inspect: {
@@ -222,20 +250,20 @@ struct AppProcessList: View {
     private func detailedProcesses(_ app: AppUsage) -> some View {
         LazyVStack(spacing: 0) {
             ForEach(orderedProcesses(app.processes, byCPU: sorting.column == .cpu)) { process in
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.turn.down.right").foregroundStyle(.tertiary)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(process.pid == app.id ? "Основной процесс" : process.role == "Процесс" ? process.name : process.role).font(.system(size: 14, weight: .medium)).lineLimit(1)
-                            Text(process.name).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                            Text(process.pid == app.id ? L("Основной процесс") : process.role == L("Процесс") ? process.name : process.role).font(.system(size: 14, weight: .medium)).lineLimit(1)
+                            Text(process.name).font(.system(size: 12)).foregroundStyle(.secondary).lineLimit(1)
                         }
                         Spacer(minLength: 0)
-                    }.padding(.leading, 30).frame(minWidth: AppColumn.name.width, maxWidth: .infinity)
+                    }.padding(.leading, 30).frame(minWidth: nameWidth, maxWidth: .infinity)
                     ForEach(columns.filter { $0 != .name }) { column in
-                        Text(processText(process, column)).font(.system(size: 13)).monospacedDigit().lineLimit(1).frame(width: column.width, alignment: .trailing)
+                        Text(processText(process, column)).font(.system(size: 12)).monospacedDigit().lineLimit(1).frame(width: columnWidth(column), alignment: .trailing)
                     }
                     Color.clear.frame(width: 22, height: 1)
-                }.padding(.horizontal, 10).frame(height: 50)
+                }.padding(.horizontal, 12).frame(height: 52)
                     .background(selection.items.contains(.process(process.id)) ? Color.accentColor.opacity(0.18) : Color.primary.opacity(0.025))
                     .contentShape(Rectangle())
                     .onTapGesture { selectRow(.process(process.id)) }
@@ -254,7 +282,7 @@ struct AppProcessList: View {
         switch column {
         case .name: return process.name
         case .pid: return String(process.pid)
-        case .cpu: return process.cpu.map { String(format: "%.1f%%", $0) } ?? "—"
+        case .cpu: return process.cpu.map { percent($0) } ?? "—"
         case .memory: return (process.footprint ?? process.memory).map(bytes) ?? "—"
         case .rss: return process.memory.map(bytes) ?? "—"
         case .processes: return "—"

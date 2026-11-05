@@ -1,6 +1,5 @@
 import Foundation
 import AppKit
-func bytes(_ value: UInt64) -> String { String(value) }
 @main struct SortingChecks {
     static func process(_ pid: Int32, memory: UInt64?, footprint: UInt64?, read: Double?) -> ProcessRow {
         ProcessRow(identity: ProcessIdentity(pid: pid, seconds: 100, micros: 0), parent: 1, executable: "/test/process", role: "Процесс", cpu: 10, memory: memory, footprint: footprint, readRate: read, writeRate: read, diskTotal: nil)
@@ -9,6 +8,13 @@ func bytes(_ value: UInt64) -> String { String(value) }
         AppUsage(id: pid, identity: ProcessIdentity(pid: pid, seconds: 100, micros: 0), name: name, cpu: cpu, memory: memory, count: members.count, icon: nil, bundleURL: nil, processes: members)
     }
     static func main() {
+        precondition(MetricDisplayUnit.temperature.formatted(44.4) == "44,4 °C")
+        precondition(MetricDisplayUnit.percentage.formatted(44.4) == "44,4%")
+        precondition(MetricDisplayUnit.throughput.formatted(1024) == "1,0 КБ/с")
+        precondition(percent(25.5) == "25,5%" && percent(nil) == "—")
+        precondition(bytes(1024) == "1,0 КБ" && bytes(0) == "0 Б")
+        precondition(degrees(36.5) == "36,5 °C" && rate(nil) == "—")
+        precondition(decimal(.infinity) == "—")
         let first = app(10, name: "Alpha", memory: 3_000_000_000, cpu: 9, members: [process(10, memory: 100, footprint: 1000, read: 0), process(11, memory: 200, footprint: 2000, read: 50)])
         let second = app(20, name: "beta", memory: 800_000_000, cpu: 100, members: [process(20, memory: 900, footprint: 900, read: 100)])
         let unknown = app(30, name: "Gamma", memory: 0, cpu: 9, members: [process(30, memory: nil, footprint: nil, read: nil)])
