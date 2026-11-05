@@ -551,6 +551,12 @@
 			"path" = "launch_app.py";
 			"sourceTree" = "<group>";
 		};
+		"F12046229BBDB2B37772F2D1" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.script.python";
+			"path" = "package_release.py";
+			"sourceTree" = "<group>";
+		};
 		"B023CA8F0F68491740229B47" = {
 			"isa" = "PBXGroup";
 			"path" = "Tools";
@@ -561,6 +567,7 @@
 				"E84A7E6C3491DAFA9ACEE9C4",
 				"8383377CA8C248BB56BEC4A8",
 				"CF40FDFE492B96E8147D2637",
+				"F12046229BBDB2B37772F2D1",
 			);
 		};
 		"B28B7AF69320201D1CF206EB" = {
