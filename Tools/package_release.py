@@ -36,7 +36,7 @@ def main():
     version, build, architecture = validate(app)
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    filename = f'Systra-{version}-macOS-{architecture}.zip'
+    filename = f'Systra-{version}-build{build}-macOS-{architecture}.zip'
     archive = output / filename
     with tempfile.TemporaryDirectory(prefix='systra-release-') as temporary:
         temporary = Path(temporary)
@@ -51,7 +51,7 @@ def main():
         staged = output / (filename + '.partial')
         staged.write_bytes(packed.read_bytes())
         os.replace(staged, archive)
-    (output / 'SHA256SUMS.txt').write_text(f'{digest}  {filename}\n')
+    (output / f'SHA256SUMS-build{build}.txt').write_text(f'{digest}  {filename}\n')
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     manifest = dict(version=version, build=build, architecture=architecture, archive=filename, sha256=digest, source_commit=commit)
     (output / 'release-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')

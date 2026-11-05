@@ -1,21 +1,25 @@
 # Systra 0.9.4
 
-Нативный монитор macOS с дашбордом, менюбаром и подробной разбивкой ресурсов по приложениям и процессам.
+A native macOS system monitor with a dashboard, menu bar controls, and detailed resource usage by application and process.
 
-## В этом релизе
+## Features
 
-- CPU, память, GPU, диск, сеть, температуры и подробный аптайм системы.
-- Группы приложений и фоновых служб, раскрытие процессов, сортировка и настройка столбцов.
-- Боковая сводка с историей CPU/памяти и разбивкой по ролям процессов.
-- Перезапуск, завершение и Force Quit с подтверждением и проверкой идентичности процесса.
-- Настраиваемые показатели в строке меню и дропдаун с ресурсоёмкими приложениями.
-- Русский и английский интерфейсы, темы и автозапуск при входе в macOS.
-- Анимированные вкладки, понятные группы температур и актуальная иконка в About.
+- CPU, memory, GPU, disk, network, temperatures, and detailed system uptime.
+- Applications and background services with expandable process groups, sorting, and configurable columns.
+- Application summaries with CPU/memory history and process role breakdowns.
+- Restart, quit, and Force Quit with confirmation and process identity checks.
+- Configurable menu bar metrics and a popover showing resource-intensive applications.
+- English and Russian interfaces, appearance settings, and launch at login.
+- Animated tabs, readable temperature groups, and the current Systra icon in About.
 
-## Установка
+## Build 33
 
-Скачайте `Systra-0.9.4-macOS-arm64.zip`, распакуйте и перенесите `Systra.app` в Applications.
+This build uses Systra identifiers throughout the application and source code, including its bundle identifier and sensor bridge.
 
-Требования: macOS 14 или новее, Apple Silicon (M1 и новее). Сборка подписана ad-hoc, без Developer ID и нотариального заверения Apple; macOS может потребовать дополнительное подтверждение при первом запуске. Контрольная сумма архива находится в `SHA256SUMS.txt`.
+## Installation
 
-Разработчик: Arsen Kocharyan.
+Download `Systra-0.9.4-build33-macOS-arm64.zip`, extract it, and move `Systra.app` to Applications.
+
+Requirements: **macOS 14 or later** and **Apple Silicon (M1 or later)**. The build is ad-hoc signed, without Developer ID signing or Apple notarization. macOS may require additional confirmation on first launch. The archive checksum is included in `SHA256SUMS-build33.txt`.
+
+Developed by **Arsen Kocharyan**.

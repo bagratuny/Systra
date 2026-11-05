@@ -25,7 +25,7 @@ Closing the window or pressing **⌘W** removes Systra from the Dock while monit
 
 ## Installation
 
-1. Download `Systra-<version>-macOS-arm64.zip` from [Releases](../../releases).
+1. Download `Systra-<version>-build<build>-macOS-arm64.zip` from [Releases](../../releases).
 2. Extract the archive and move `Systra.app` to **Applications**.
 3. Open the app.
 
