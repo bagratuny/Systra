@@ -1,91 +1,91 @@
 <p align="center">
-  <img src="Resources/Systra.png" width="112" height="112" alt="Иконка Systra" />
+  <img src="Resources/Systra.png" width="112" height="112" alt="Systra icon" />
 </p>
 
 <h1 align="center">Systra</h1>
 
-<p align="center">Нативный монитор Mac, который помогает найти причину нагрузки.</p>
+<p align="center">A native macOS system monitor that helps explain what your Mac is doing.</p>
 
-Systra показывает состояние системы и помогает разобраться, какие приложения, фоновые службы и дочерние процессы используют ресурсы Mac. Общая картина доступна на дашборде, подробности — в таблицах и боковой сводке, а ключевые показатели всегда можно оставить в строке меню.
+Systra brings system metrics, applications, background services, and individual processes into one interface. Start with the dashboard, inspect an application's resource usage in the sidebar, or keep the metrics you care about in the menu bar.
 
-**macOS 14+ · Apple Silicon · SwiftUI + AppKit · Русский и English**
+**macOS 14+ · Apple Silicon · SwiftUI + AppKit · English and Russian**
 
-## Возможности
+## Features
 
-- **Мониторинг системы:** CPU, память, GPU, чтение и запись диска, сетевой трафик и температуры.
-- **Приложения и процессы:** группировка по приложениям, раскрытие дочерних процессов, сортировка, поиск и настраиваемые столбцы. Видны и фоновые приложения, включая службы строки меню.
-- **Сводка приложения:** история CPU и памяти, роли процессов, версия, путь и время работы. Для браузеров отдельно выделяются web content, расширения, GPU и сетевые службы.
-- **Действия:** открыть приложение или его папку, скопировать сведения, перезапустить, завершить или выполнить Force Quit. Поддерживается множественное выделение; завершение требует подтверждения.
-- **Строка меню:** компактный дропдаун и выбор показателей рядом с иконкой — CPU, память, GPU, температура чипа, диск, сеть и аптайм. Можно оставить только иконку.
-- **Температуры:** понятные группы компонентов, диапазоны и отдельные датчики; исходные имена macOS доступны в подсказках.
-- **Аптайм:** время с загрузки, работа и сон, дата загрузки, пробуждения, системная нагрузка и сведения о Mac.
-- **Настройки:** русский и английский языки, светлая и тёмная темы, системное оформление, анимации и автозапуск при входе.
+- **System monitoring:** CPU, memory, GPU, disk reads and writes, network throughput, and temperatures.
+- **Applications and processes:** expandable process groups, search, sorting, and configurable columns. Background and menu bar apps are included.
+- **Application summaries:** CPU and memory history, process roles, version, executable path, and uptime. Browser processes are grouped into web content, extensions, GPU, and network services.
+- **Process controls:** open an app or its folder, copy details, restart, quit, or force quit. Multiple selection is supported; termination actions require confirmation.
+- **Menu bar:** a compact popover and configurable metrics beside the icon, including CPU, memory, GPU, chip temperature, disk activity, network traffic, and uptime. An icon-only mode is also available.
+- **Temperatures:** readable component groups, reading ranges, and individual sensors. Hover over a sensor to see its original macOS name.
+- **System uptime:** time since boot, awake and sleep time, boot date, wake events, load averages, and Mac information.
+- **Preferences:** English and Russian, light and dark appearances, system appearance, tab animations, and launch at login.
 
-Закрытие окна и **⌘W** скрывают приложение из Dock; мониторинг и строка меню продолжают работать. Для полного выхода используйте **Systra → Выйти из Systra**. Настройки открываются сочетанием **⌘,**.
+Closing the window or pressing **⌘W** removes Systra from the Dock while monitoring continues in the menu bar. To exit completely, choose **Systra → Quit Systra**. Open Settings with **⌘,**.
 
-## Установка
+## Installation
 
-1. Скачайте `Systra-<версия>-macOS-arm64.zip` из раздела [Releases](../../releases).
-2. Распакуйте архив и перенесите `Systra.app` в **Applications**.
-3. Откройте приложение.
+1. Download `Systra-<version>-macOS-arm64.zip` from [Releases](../../releases).
+2. Extract the archive and move `Systra.app` to **Applications**.
+3. Open the app.
 
-Текущая сборка предназначена для **Apple Silicon (M1 и новее)**. Она подписана локальной ad-hoc подписью, без Developer ID и нотариального заверения Apple. При первом запуске скачанной сборки macOS может запросить дополнительное подтверждение.
+The current build supports **Apple Silicon (M1 and later)**. It uses a local ad-hoc signature and is not Developer ID signed or notarized by Apple. macOS may require additional confirmation when opening a downloaded build for the first time.
 
-## Приватность и точность данных
+## Privacy and measurement details
 
-Показатели обрабатываются локально. В приложении нет аналитики, отправки метрик на сервер и привилегированных фоновых служб. Автозапуск настраивается штатным механизмом macOS.
+Metrics are processed locally. Systra does not send telemetry to a server, include analytics, or install privileged background services. Launch at login uses the native macOS mechanism.
 
-Есть несколько важных особенностей измерений:
+A few details matter when interpreting the numbers:
 
-- Общая загрузка CPU нормирована на весь Mac; в строках приложений **100% соответствует одному логическому ядру**.
-- Основная память — **footprint**, включая сжатые страницы; **RSS** показывает резидентные страницы. Общие страницы могут учитываться в нескольких процессах.
-- Дисковые счётчики процессов могут отличаться от физической активности SSD из-за кэширования. Сеть считается по физическим интерфейсам; VPN и loopback отдельно не прибавляются.
-- Температуры читаются через read-only HID API. Набор датчиков и счётчиков GPU зависит от модели Mac и версии macOS. Отсутствующие данные обозначаются прочерком.
-- Браузеры не раскрывают соответствие PID именованным вкладкам. Systra показывает реальные роли процессов, без выдуманных названий вкладок. Разбивки GPU и сетевого трафика по приложениям пока нет.
+- System CPU usage is normalized across the entire Mac. In application and process rows, **100% means one logical core**.
+- The primary memory metric is **footprint**, including compressed pages. **RSS** measures resident pages. Shared pages may be counted by more than one process.
+- Process disk counters may differ from physical SSD activity because of caching. Network traffic is measured across physical interfaces; VPN and loopback traffic are not added separately.
+- Temperatures use a read-only HID API. Available sensors and GPU counters depend on the Mac model and macOS version. Missing data is shown as a dash.
+- Browsers do not expose a reliable mapping between PIDs and named tabs. Systra reports actual process roles without inventing tab names. Per-application GPU and network attribution is not currently available.
 
-Данные обновляются каждые две секунды; история графиков охватывает до двух минут текущего сеанса. Аргументы процессов используются только локально для определения роли и не сохраняются целиком.
+Metrics update every two seconds. Charts retain up to two minutes of history from the current session. Process arguments are used locally to identify roles and are not stored in full.
 
-## Сборка из исходников
+## Building from source
 
-Нужны Xcode с macOS 26 SDK или новее, Command Line Tools и Python 3. Сборка проверена с Xcode 27.1. Внешних зависимостей нет.
+You need Xcode with the macOS 26 SDK or later, Command Line Tools, and Python 3. The build has been verified with Xcode 27.1. There are no external package dependencies.
 
-Откройте `Systra.xcodeproj`, выберите схему **Systra** и **My Mac**, затем нажмите Run. Либо выполните из каталога проекта:
+Open `Systra.xcodeproj`, select the **Systra** scheme and **My Mac**, then choose Run. Alternatively, from the project directory:
 
 ```sh
 ./build.sh
 ./run.sh
 ```
 
-`build.sh` собирает Release для arm64 и устанавливает приложение в `/Applications/Systra.app`. Такая же установка настроена в общей схеме Xcode. Уже работающий экземпляр при сборке не закрывается; `run.sh` перезапускает установленную копию.
+`build.sh` creates an arm64 Release build and installs it at `/Applications/Systra.app`. The shared Xcode scheme also installs the app after building. Building alone does not close an already running instance; `run.sh` restarts the installed copy.
 
-Для упаковки проверенной сборки:
+To package a verified build:
 
 ```sh
 python3 Tools/package_release.py
 ```
 
-Архив и контрольная сумма появятся в `.build/releases/`. Упаковщик проверяет подпись и архитектуру, распаковывает архив во временную папку и повторно проверяет приложение.
+The archive and checksum are written to `.build/releases/`. The packager checks the signature and architecture, extracts the archive into a temporary directory, and verifies the extracted app again.
 
-## Проверки
+## Validation
 
 ```sh
 ./test.sh
 SYSTRA_LIVE_CHECKS=1 ./test.sh
 ```
 
-Проверяются сортировка и агрегирование метрик, выбор строк, классификация процессов и датчиков, локализация, настройки менюбара и автозапуска, аптайм и геометрия вкладок. Дополнительные live-проверки кратко запускают собственный тестовый процесс с нагрузкой.
+Checks cover metric sorting and aggregation, row selection, process and sensor classification, localization, menu bar preferences, login item states, uptime, and tab geometry. Optional live checks briefly launch a dedicated test process under load.
 
-## Устройство проекта
+## Project structure
 
-| Каталог | Содержимое |
+| Directory | Contents |
 | --- | --- |
-| `Sources/SystraApp` | Интерфейс, мониторинг, процессы, настройки и строка меню |
-| `Sources/SensorBridge` | Read-only C-мост к libproc и HID-датчикам |
-| `Resources` | Иконки, перевод и параметры приложения |
-| `Tests` | Исполняемые проверки |
-| `Tools` | Установка, упаковка релиза и генерация проекта |
-| `Docs` | Описание дизайна и заметки к релизу |
+| `Sources/SystraApp` | Interface, monitoring, processes, preferences, and menu bar |
+| `Sources/SensorBridge` | Read-only C bridge to libproc and HID sensors |
+| `Resources` | Icons, translations, and application metadata |
+| `Tests` | Executable validation checks |
+| `Tools` | Installation, release packaging, and project generation |
+| `Docs` | Design notes and release notes |
 
-`Tools/generate_project.py` восстанавливает Xcode-проект и общую схему из файлов репозитория. При обычной сборке генератор не запускается.
+`Tools/generate_project.py` regenerates the Xcode project and shared scheme from the repository files. It does not run during normal builds.
 
-Разработчик — **Arsen Kocharyan**. Подробности оформления и атрибуция использованного дизайн-процесса — в [Docs/Design.md](Docs/Design.md).
+Developed by **Arsen Kocharyan**. Design notes and workflow attribution are available in [Docs/Design.md](Docs/Design.md).
